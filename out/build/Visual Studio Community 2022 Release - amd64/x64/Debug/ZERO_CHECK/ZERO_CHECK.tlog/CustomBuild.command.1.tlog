@@ -1,0 +1,10 @@
+^D:\C++\C++_GAME\SDL_SHOOTER\OUT\BUILD\VISUAL STUDIO COMMUNITY 2022 RELEASE - AMD64\CMAKEFILES\8FFA4B17B5CFCF293C7847F42A48E135\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SD:/c++/C++_Game/SDL_shooter "-BD:/c++/C++_Game/SDL_shooter/out/build/Visual Studio Community 2022 Release - amd64" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "D:/c++/C++_Game/SDL_shooter/out/build/Visual Studio Community 2022 Release - amd64/SDL_shooter.sln"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

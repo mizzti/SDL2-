@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\c++\C++_Game\SDL_shooter\out\build\Visual Studio Community 2022 Release - amd64\CMakeFiles\8ffa4b17b5cfcf293c7847f42a48e135\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{8829ECB3-B832-3690-810C-06DE1E2EA813}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
