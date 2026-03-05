@@ -30,9 +30,9 @@ void SceneMain::handleEvent(SDL_Event* event)
 {
 }
 
-void SceneMain::update()
+void SceneMain::update(float deltaTime)
 {
-    keyboardControl();
+    keyboardControl(deltaTime);
 }
 
 void SceneMain::render()
@@ -55,26 +55,26 @@ void SceneMain::clean()
     }
 }
 
-void SceneMain::keyboardControl()
+void SceneMain::keyboardControl(float deltaTime)
 {
     auto keyboardState = SDL_GetKeyboardState(NULL);
     // 读取键盘状态，设置速度
     if (keyboardState[SDL_SCANCODE_W])
     {
         // 设置速度
-        player.position.y -= 1;
+        player.position.y -= deltaTime * player.speed;
     }
     if (keyboardState[SDL_SCANCODE_S])
     {
-        player.position.y += 1;
+        player.position.y += deltaTime * player.speed;
     }
     if (keyboardState[SDL_SCANCODE_A])
     {
-        player.position.x -= 1;
+        player.position.x -= deltaTime * player.speed;
     }
     if (keyboardState[SDL_SCANCODE_D])
     {
-        player.position.x += 1;
+        player.position.x += deltaTime * player.speed;
     }
 
     // 设置飞机的移动范围

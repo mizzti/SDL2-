@@ -12,6 +12,7 @@ struct Player
     // 玩家的长宽
     int width;
     int hight;
+    int speed = 200;
 };
 
 #endif

@@ -22,19 +22,34 @@ void Game::run()
     // 主循环
     while (isRunning)
     {
+        auto frameStart = SDL_GetTicks();
         SDL_Event event;
         handleEvent(&event);
 
         // 更新
-        update();
+        update(deltaTime);
 
         // 渲染
         render();
+        auto frameEnd = SDL_GetTicks();
+        auto diff = frameEnd - frameStart;// 单位毫秒
+        if (diff < frameTime)
+        {
+            SDL_Delay(frameTime - diff);
+            //  deltaTime是浮点数的单位是秒，frameTime单位是毫秒
+            deltaTime = frameTime / 1000.0f;
+        }
+        else
+        {
+            deltaTime = diff / 1000.0f;
+        }
     }
 }
 
 void Game::init()
 {
+    // 计算frameTime每秒内一帧所用时间 -x 目标时间计算公式- 单位毫秒
+    frameTime = 1000 / FPS;
     // SDL初始化
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
     {
@@ -109,9 +124,9 @@ void Game::handleEvent(SDL_Event* event)
     }
 }
 
-void Game::update()
+void Game::update(float deltaTime)
 {
-    currentScene->update();
+    currentScene->update(deltaTime);
 }
 
 void Game::render()

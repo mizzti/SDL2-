@@ -21,7 +21,7 @@ public:
     void clean();
 
     void handleEvent(SDL_Event* e);
-    void update();
+    void update(float deltaTime);
     void render();
 
     SDL_Renderer* getRenderer()
@@ -55,6 +55,10 @@ private:
     SDL_Renderer* renderer = nullptr;
     int windowWidth = 600;
     int windowHeight = 800;
+
+    int FPS = 60;
+    Uint32 frameTime;
+    float deltaTime;// 渲染循环所需时间
 };
 
 #endif
