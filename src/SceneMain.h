@@ -3,6 +3,7 @@
 
 #include "Scene.h"
 #include "Object.h"
+#include <list>
 
 class Game; // 不直接inclue是为防止循环引入头文件
 
@@ -20,10 +21,15 @@ public:
     void clean() override;
 
     void keyboardControl(float deltaTime);
+    void shootPlayer();
+    void updatePlayerProjectile(float deltaTime);
+    void randerProjectilePlayer();
 
 private:
     Game& game;
     Player player;
+    std::list<ProjectilePlayer*> projectilePlayer;// 使用指针避免栈上内存过多
+    ProjectilePlayer projectilePlayerTemplate;
 };
 
 #endif

@@ -24,6 +24,13 @@ void SceneMain::init()
     // 设置玩家初始坐标 -xx 忘了- -注：这里的发生了低精度到高精度的隐式转换，所以无需显示转换-
     player.position.x = game.getWindowWidth() / 2 - player.width / 2;
     player.position.y = game.getWindowHight() - player.hight;
+
+    // 初始化子弹
+    projectilePlayerTemplate.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/laser-3.png");
+    SDL_QueryTexture(projectilePlayerTemplate.texture, NULL, NULL, &projectilePlayerTemplate.width, &projectilePlayerTemplate.hight);
+    projectilePlayerTemplate.width /= 4;
+    projectilePlayerTemplate.hight /= 4;
+
 }
 
 void SceneMain::handleEvent(SDL_Event* event)
@@ -33,10 +40,15 @@ void SceneMain::handleEvent(SDL_Event* event)
 void SceneMain::update(float deltaTime)
 {
     keyboardControl(deltaTime);
+    // 更新子弹
+    updatePlayerProjectile(deltaTime);
 }
 
 void SceneMain::render()
 {
+    // 先渲染子弹，渲染会按照顺序叠加渲染（类似图层）
+    randerProjectilePlayer();
+
     // -x 高精度float转换到低精度的int，会发生数据丢失，C++禁止这样的隐式转换，所以要显示转换-
     SDL_Rect rect = {static_cast<int>(player.position.x),
                      static_cast<int>(player.position.y),
@@ -48,10 +60,25 @@ void SceneMain::render()
 
 void SceneMain::clean()
 {
+    // 清理容器
+    for (auto& projectile : projectilePlayer)
+    {
+        if (projectile != nullptr)
+        {
+            delete projectile;
+        }
+    }
+    projectilePlayer.clear();
+
+    // 释放材质 
     if (SDL_DestroyTexture != nullptr)
     {
         // 释放图片材质
         SDL_DestroyTexture(player.texture);
+    }
+    if (projectilePlayerTemplate.texture != nullptr)
+    {
+        SDL_DestroyTexture(projectilePlayerTemplate.texture);
     }
 }
 
@@ -93,5 +120,55 @@ void SceneMain::keyboardControl(float deltaTime)
     if (player.position.y > game.getWindowHight() - player.hight)
     {
         player.position.y = game.getWindowHight() - player.hight;
+    }
+
+    // 发射子弹
+    if (keyboardState[SDL_SCANCODE_J])
+    {
+        auto currentTime = SDL_GetTicks();
+        if ((currentTime - player.lastShootTime) > player.coolDown)
+        {
+            shootPlayer();
+            player.lastShootTime = currentTime;
+        }
+    }
+}
+
+void SceneMain::shootPlayer()
+{
+    // 设置发射子弹 -x 发射子弹时需要加载子弹材质，频繁访问硬盘会减慢游戏速度- 
+    // 使用指针是因为栈上变量的生命周期不匹配，栈上变量离开函数作用域就会被立刻销毁
+    ProjectilePlayer* projectile = new ProjectilePlayer(projectilePlayerTemplate);
+    // 设置子弹位置 -x 子弹位置要在发射子弹时再设置-
+    projectile->position.x = player.position.x + player.width / 2 - projectile->width / 2;
+    projectile->position.y = player.position.y;
+    projectilePlayer.push_back(projectile);
+}
+
+void SceneMain::updatePlayerProjectile(float deltaTime)
+{
+    // 使用迭代器更新子弹
+    for (auto it = projectilePlayer.begin(); it != projectilePlayer.end();)
+    {
+        auto projectile = *it;
+        // 更新子弹的发射速度
+        projectile->position.y -= projectile->speed * deltaTime;
+        // 检查子弹是否超出屏幕
+
+        ++it;
+    }
+}
+
+void SceneMain::randerProjectilePlayer()
+{
+    for (auto projectile : projectilePlayer)
+    {
+        SDL_Rect projectileRect = {
+                                        static_cast<int>(projectile->position.x),
+                                        static_cast<int>(projectile->position.y),
+                                        projectile->width,
+                                        projectile->hight
+                                        };
+        SDL_RenderCopy(game.getRenderer(), projectile->texture, NULL, &projectileRect);
     }
 }
