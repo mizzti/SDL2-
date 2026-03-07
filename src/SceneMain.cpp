@@ -147,15 +147,24 @@ void SceneMain::shootPlayer()
 
 void SceneMain::updatePlayerProjectile(float deltaTime)
 {
+    int margin = 32; // 边缘
     // 使用迭代器更新子弹
     for (auto it = projectilePlayer.begin(); it != projectilePlayer.end();)
     {
-        auto projectile = *it;
+        auto projectile = *it;// *it得到 ProjectilePlayer*指针
         // 更新子弹的发射速度
         projectile->position.y -= projectile->speed * deltaTime;
         // 检查子弹是否超出屏幕
-
-        ++it;
+        if (projectile->position.y + margin < 0)
+        {
+            delete projectile;
+            it = projectilePlayer.erase(it);
+            SDL_Log("子弹被删除");
+        }
+        else
+        {
+            ++it;
+        }
     }
 }
 
