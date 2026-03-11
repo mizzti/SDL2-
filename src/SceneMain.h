@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "Object.h"
 #include <list>
+#include <random>
 
 class Game; // 不直接inclue是为防止循环引入头文件
 
@@ -25,11 +26,29 @@ public:
     void updatePlayerProjectile(float deltaTime);
     void randerProjectilePlayer();
 
+    void spawnEnemy(float deltaTime);
+    void randerEnemies();
+    void updateEnemies(float deltaTime);
+
+    void spawnProjectilesEnemy(Enemy* enemy);
+    void updateProjectilesEnemy(float deltaTime);
+    void randerProjectilesEnemy();
+
 private:
     Game& game;
     Player player;
+
     std::list<ProjectilePlayer*> projectilePlayer;// 使用指针避免栈上内存过多
     ProjectilePlayer projectilePlayerTemplate;
+
+    std::mt19937 gen;// 随机数引擎
+    std::uniform_real_distribution<float> dis;
+
+    std::list<Enemy*> enemies;
+    Enemy enemyTemplate;
+
+    std::list<ProjectileEnemy*> projectileEnemy;
+    ProjectileEnemy projectileEnemyTemp;
 };
 
 #endif

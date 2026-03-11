@@ -7,7 +7,7 @@ struct Player
 {
     // 玩家材质 -x -
     SDL_Texture* texture = nullptr;
-    // 玩家的坐标 -？类型是两个浮点数构成的结构体-
+    // 玩家的坐标 -x 类型是两个浮点数构成的结构体-
     SDL_FPoint position = {0, 0};
     // 玩家的长宽
     int width = 0;
@@ -28,6 +28,28 @@ struct ProjectilePlayer
     // -x 没有设定速度，所以子弹就无法被射出-
     int speed = 200;
 
+};
+
+struct Enemy
+{
+    SDL_Texture* texture = nullptr;
+    SDL_FPoint position = {0, 0};
+    int wight = 0;
+    int hight = 0;
+    int speed = 100;
+
+
+};
+
+struct ProjectileEnemy
+{
+    SDL_Texture* texture;
+    SDL_FPoint position = {0, 0};
+    // 子弹朝向
+    SDL_FPoint direction = {0, 0};
+    int wight = 0;
+    int hight = 0;
+    int speed = 200;
 };
 
 #endif
