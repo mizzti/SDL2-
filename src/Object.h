@@ -38,7 +38,8 @@ struct Enemy
     int hight = 0;
     int speed = 100;
 
-
+    Uint32 coolDown = 1000;
+    Uint32 lastShootTime = 0;
 };
 
 struct ProjectileEnemy

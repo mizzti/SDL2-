@@ -18,7 +18,7 @@ void SceneMain::init()
     // 生成随机数种子
     std::random_device rd;
     // 生成随机数引擎
-    gen = std::mt19937(rd());// -x rd()：调用该对象-
+    gen = std::mt19937(rd());// -x rd()：重载了(）,可以直接进行调用-
     // 创建指定分布
     dis = std::uniform_real_distribution<float>(0, 1);
 
@@ -29,7 +29,7 @@ void SceneMain::init()
     // -x 玩家位置显示错误的原因在于缩小的对象错了，应该缩小玩家对象的长宽，而不是下方渲染时放置玩家的长方形框-
     player.hight /= 4;
     player.width /= 4;
-    // 设置玩家初始坐标 -xx 忘了- -注：这里的发生了低精度到高精度的隐式转换，所以无需显示转换-
+    // 设置玩家初始坐标 -x 忘了- -注：这里的发生了低精度到高精度的隐式转换，所以无需显示转换-
     player.position.x = game.getWindowWidth() / 2 - player.width / 2;
     player.position.y = game.getWindowHight() - player.hight;
 
@@ -40,16 +40,16 @@ void SceneMain::init()
     projectilePlayerTemplate.hight /= 4;
 
     // 初始化敌机
-    enemyTemplate.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/insect-1.png");
+    enemyTemplate.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/insect-2.png");
     SDL_QueryTexture(enemyTemplate.texture, NULL, NULL, &enemyTemplate.wight, &enemyTemplate.hight);
-    enemyTemplate.wight /= 2;
-    enemyTemplate.hight /= 2;
+    enemyTemplate.wight /= 4;
+    enemyTemplate.hight /= 4;
 
     // 初始化敌机子弹
-    projectileEnemyTemp.texture = IMG_LoadTexture(game.getRenderer(), "");
+    projectileEnemyTemp.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/bullet-2.png");
     SDL_QueryTexture(projectileEnemyTemp.texture, NULL, NULL, &projectileEnemyTemp.wight, &projectileEnemyTemp.hight);
-    projectileEnemyTemp.wight /= 2;
-    projectileEnemyTemp.hight /= 2;
+    projectileEnemyTemp.wight /= 4;
+    projectileEnemyTemp.hight /= 4;
 
 }
 
@@ -67,7 +67,7 @@ void SceneMain::update(float deltaTime)
     // 更新敌机位置
     updateEnemies(deltaTime);
     // 更新敌机子弹
-    updateProjectilesEnemy(deltaTime);
+    updateEnemyProjectiles(deltaTime);
 }
 
 void SceneMain::render()
@@ -266,9 +266,6 @@ void SceneMain::spawnEnemy(float deltaTime)
     // }
     // 插入容器--list，会生成多个敌机
     enemies.push_back(enemy);
-
-    // 生成敌机子弹
-    spawnProjectilesEnemy(enemy);
 }
 
 void SceneMain::randerEnemies()
@@ -288,48 +285,64 @@ void SceneMain::randerEnemies()
 
 void SceneMain::updateEnemies(float deltaTime)
 {
+    Uint32 currentTime = SDL_GetTicks();
     // -x 更新逻辑和生成逻辑要分开-
     for (auto it = enemies.begin(); it != enemies.end();)
     {
-        auto enemyIt = *it;
-        enemyIt->position.y += enemyIt->speed * deltaTime;
+        auto enemy = *it;
+        enemy->position.y += enemy->speed * deltaTime;
         // 超过屏幕外销毁敌机
-        if (enemyIt->position.y > game.getWindowHight())
+        if (enemy->position.y > game.getWindowHight())
         {
-            delete enemyIt;
+            delete enemy;// -注： 删除enemy是因为enemy拷贝了*it，使用引用可以避免-
             // 删除链表中的敌机，更新it
             it = enemies.erase(it);
             // SDL_Log("敌机被删除");
         }
         else
         {
+            // -x 判断敌机是否发射：冷却时间是否到达-
+            if (currentTime - enemy->lastShootTime > enemy->coolDown)
+            {
+                // 生成敌机子弹 -x 应在更新敌机是生成子弹，而不是生成敌机时-
+                shootProjectilesEnemy(enemy);
+                enemy->lastShootTime = currentTime;
+            }
             ++it;
         }
     }
 }
 
-void SceneMain::spawnProjectilesEnemy(Enemy* enemy)
+void SceneMain::shootProjectilesEnemy(Enemy* enemy)
 {
     ProjectileEnemy* projsEnemy = new ProjectileEnemy(projectileEnemyTemp);
-    // -？ 敌机的位置该怎么获取呢-
-    projsEnemy->position.x = enemy->position.x + enemy->wight / 2;
-    projsEnemy->position.y = enemy->position.y;
+    // -x 敌机的位置-
+    projsEnemy->position.x = enemy->position.x + enemy->wight / 2 - projsEnemy->wight / 2;
+    projsEnemy->position.y = enemy->position.y + enemy->hight / 2 - projsEnemy->hight / 2;
+    // 设置子弹朝向
+    projsEnemy->direction = getDirection(enemy);
     projectileEnemy.push_back(projsEnemy);
 }
 
-void SceneMain::updateProjectilesEnemy(float deltaTime)
+void SceneMain::updateEnemyProjectiles(float deltaTime)
 {
     int margin = 32;
     for (auto it = projectileEnemy.begin(); it != projectileEnemy.end();)
     {
         auto projsEnemy = *it;
-        projsEnemy->position.y += deltaTime * projsEnemy->speed;
-        if (projsEnemy->position.y - margin > game.getWindowHight())
+        projsEnemy->position.x += projsEnemy->direction.x * projsEnemy->speed * deltaTime;
+        projsEnemy->position.y += projsEnemy->direction.y * projsEnemy->speed * deltaTime;
+        
+        if (projsEnemy->position.y > game.getWindowHight() + margin||
+            projsEnemy->position.y < -margin ||
+            projsEnemy->position.x > game.getWindowWidth() + margin ||
+            projsEnemy->position.x < -margin)
         {
             // 删除当前子弹
             delete projsEnemy;
             // 删除队列中当前的子弹
             it = projectileEnemy.erase(it);
+            // SDL_Log("敌人子弹被删除");
         }
         else
         {
@@ -350,4 +363,21 @@ void SceneMain::randerProjectilesEnemy()
         };
         SDL_RenderCopy(game.getRenderer(), projsEnemy->texture, NULL, &projsRect);
     }
+}
+
+SDL_FPoint SceneMain::getDirection(Enemy* enemy)
+{
+    float x = (player.position.x + player.width / 2) - (enemy->position.x + enemy->wight / 2);
+    float y = (player.position.y + player.hight / 2) - (enemy->position.y + enemy->hight / 2);
+    float length = sqrt(x * x + y * y);
+
+    // -注：新增：如果距离过小，避免除以0-
+    if (length < 0.0001f)
+    {
+        return SDL_FPoint{0, 1};// 往下飞
+    }
+
+    x /= length;
+    y /= length;
+    return SDL_FPoint{x, y};
 }

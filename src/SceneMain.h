@@ -30,25 +30,26 @@ public:
     void randerEnemies();
     void updateEnemies(float deltaTime);
 
-    void spawnProjectilesEnemy(Enemy* enemy);
-    void updateProjectilesEnemy(float deltaTime);
+    void shootProjectilesEnemy(Enemy* enemy);
+    void updateEnemyProjectiles(float deltaTime);
     void randerProjectilesEnemy();
+    SDL_FPoint getDirection(Enemy* enemy);
 
 private:
     Game& game;
     Player player;
 
-    std::list<ProjectilePlayer*> projectilePlayer;// 使用指针避免栈上内存过多
     ProjectilePlayer projectilePlayerTemplate;
-
+    Enemy enemyTemplate;
+    ProjectileEnemy projectileEnemyTemp;
+    
     std::mt19937 gen;// 随机数引擎
     std::uniform_real_distribution<float> dis;
-
+    
+    std::list<ProjectilePlayer*> projectilePlayer;// 使用指针避免栈上内存过多
     std::list<Enemy*> enemies;
-    Enemy enemyTemplate;
-
     std::list<ProjectileEnemy*> projectileEnemy;
-    ProjectileEnemy projectileEnemyTemp;
+
 };
 
 #endif
