@@ -361,7 +361,10 @@ void SceneMain::randerProjectilesEnemy()
             projsEnemy->wight,
             projsEnemy->hight
         };
-        SDL_RenderCopy(game.getRenderer(), projsEnemy->texture, NULL, &projsRect);
+        // -注 Cpp允许向下转换-
+        float angle = atan2(projsEnemy->direction.y, projsEnemy->direction.x) * 180 / M_PI - 90;
+        // SDL_RenderCopy(game.getRenderer(), projsEnemy->texture, NULL, &projsRect);
+        SDL_RenderCopyEx(game.getRenderer(), projsEnemy->texture, NULL, &projsRect, angle, NULL, SDL_FLIP_NONE);
     }
 }
 
