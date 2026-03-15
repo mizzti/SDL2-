@@ -5,18 +5,20 @@
 
 struct Player
 {
-    // 玩家材质 -x -
+    // 玩家材质 [BUG] -
     SDL_Texture* texture = nullptr;
-    // 玩家的坐标 -x 类型是两个浮点数构成的结构体-
+    // 玩家的坐标 [BUG] 类型是两个浮点数构成的结构体-
     SDL_FPoint position = {0, 0};
     // 玩家的长宽
     int width = 0;
-    int hight = 0;
+    int height = 0;
     int speed = 300;
 
-    // -x 放在玩家的结构体中-
+    // [BUG] 放在玩家的结构体中-
     Uint32 coolDown =  500;// 发射子弹的冷却时间，毫秒
     Uint32 lastShootTime = 0;// 记录上一次的子弹发射时间
+
+    int health = 3;
 };
 
 struct ProjectilePlayer
@@ -24,22 +26,24 @@ struct ProjectilePlayer
     SDL_Texture* texture = nullptr;
     SDL_FPoint position = {0, 0};
     int width = 0;
-    int hight = 0;
-    // -x 没有设定速度，所以子弹就无法被射出-
+    int height = 0;
+    // [BUG] 没有设定速度，所以子弹就无法被射出-
     int speed = 200;
-
+    int demage = 1;
 };
 
 struct Enemy
 {
     SDL_Texture* texture = nullptr;
     SDL_FPoint position = {0, 0};
-    int wight = 0;
-    int hight = 0;
+    int width = 0;
+    int height = 0;
     int speed = 100;
 
     Uint32 coolDown = 1000;
     Uint32 lastShootTime = 0;
+
+    int health = 2;
 };
 
 struct ProjectileEnemy
@@ -48,9 +52,11 @@ struct ProjectileEnemy
     SDL_FPoint position = {0, 0};
     // 子弹朝向
     SDL_FPoint direction = {0, 0};
-    int wight = 0;
-    int hight = 0;
+    int width = 0;
+    int height = 0;
     int speed = 200;
+
+    int demage = 1;
 };
 
 #endif

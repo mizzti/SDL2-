@@ -1,7 +1,7 @@
 #include "Game.h"
 #include "SceneMain.h"
 #include <SDL.h>
-#include <SDL_image.h> // -x 库名-
+#include <SDL_image.h>
 
 Game::Game()
 {
@@ -36,7 +36,7 @@ void Game::run()
         if (diff < frameTime)
         {
             SDL_Delay(frameTime - diff);
-            //  deltaTime是浮点数的单位是秒，frameTime单位是毫秒
+            // deltaTime是浮点数的单位是秒，frameTime单位是毫秒
             deltaTime = frameTime / 1000.0f;
         }
         else
@@ -48,7 +48,7 @@ void Game::run()
 
 void Game::init()
 {
-    // 计算frameTime每秒内一帧所用时间 -x 目标时间计算公式- 单位毫秒
+    // 计算frameTime每秒内一帧所用时间 [BUG] 目标时间计算公式- 单位毫秒
     frameTime = 1000 / FPS;
     // SDL初始化
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -74,7 +74,7 @@ void Game::init()
         isRunning = false;
     }
 
-    // 初始化IMG -x 初始化函数名和参数写错，初始化位置应在Game中-
+    // 初始化IMG [BUG] 初始化函数名和参数写错，初始化位置应在Game中-
     if (IMG_Init(IMG_INIT_PNG) != (IMG_INIT_PNG))
     {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_IMG INIT ERROR: %S\n", IMG_GetError());

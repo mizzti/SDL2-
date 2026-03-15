@@ -24,16 +24,18 @@ public:
     void keyboardControl(float deltaTime);
     void shootPlayer();
     void updatePlayerProjectile(float deltaTime);
-    void randerProjectilePlayer();
+    void renderProjectilePlayer();
 
     void spawnEnemy(float deltaTime);
-    void randerEnemies();
+    void renderEnemies();
     void updateEnemies(float deltaTime);
 
     void shootProjectilesEnemy(Enemy* enemy);
     void updateEnemyProjectiles(float deltaTime);
-    void randerProjectilesEnemy();
+    void renderProjectilesEnemy();
     SDL_FPoint getDirection(Enemy* enemy);
+
+    void enemyExplode(Enemy* enemy);
 
 private:
     Game& game;

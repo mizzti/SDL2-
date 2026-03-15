@@ -9,7 +9,7 @@ class Game
 {
 public:
     ~Game();
-    static Game& getInstance() // -？这里怎么用引用呢-
+    static Game& getInstance() // [NOTE] 返回引用确保单例不会被意外删除，调用更直观-
     {
         static Game instance;
         return instance;
@@ -39,7 +39,7 @@ public:
         return windowWidth;
     }
 
-    int getWindowHight()
+    int getWindowHeight()
     {
         return windowHeight;
     }
@@ -47,7 +47,7 @@ public:
 private:
     Game();
     Game(const Game&) = delete;
-    Game& operator=(const Game&) = delete; // -x 删除拷贝运算符的参数-
+    Game& operator=(const Game&) = delete; // [BUG] 删除拷贝运算符的参数-
 
     bool isRunning = true;
     Scene* currentScene = nullptr;

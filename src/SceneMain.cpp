@@ -1,6 +1,6 @@
 #include "SceneMain.h"
 #include "Game.h"
-// 导入IMG库，-x 库名-
+// 导入IMG库，[BUG] 库名-
 #include <SDL_image.h>
 #include <SDL.h>
 #include <random>
@@ -18,38 +18,38 @@ void SceneMain::init()
     // 生成随机数种子
     std::random_device rd;
     // 生成随机数引擎
-    gen = std::mt19937(rd());// -x rd()：重载了(）,可以直接进行调用-
+    gen = std::mt19937(rd());// [BUG] rd()：重载了(）,可以直接进行调用-
     // 创建指定分布
     dis = std::uniform_real_distribution<float>(0, 1);
 
-    // 初始化player -x -
+    // 初始化player [BUG] -
     player.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/SpaceShip.png");
-    // 获取材质的长宽作为player的长宽，注意float到int* -x 设置的是玩家的宽高，不是位置-
-    SDL_QueryTexture(player.texture, NULL, NULL, &player.width, &player.hight);
-    // -x 玩家位置显示错误的原因在于缩小的对象错了，应该缩小玩家对象的长宽，而不是下方渲染时放置玩家的长方形框-
-    player.hight /= 4;
+    // 获取材质的长宽作为player的长宽，注意float到int* [BUG] 设置的是玩家的宽高，不是位置-
+    SDL_QueryTexture(player.texture, NULL, NULL, &player.width, &player.height);
+    // [BUG] 玩家位置显示错误的原因在于缩小的对象错了，应该缩小玩家对象的长宽，而不是下方渲染时放置玩家的长方形框-
+    player.height /= 4;
     player.width /= 4;
-    // 设置玩家初始坐标 -x 忘了- -注：这里的发生了低精度到高精度的隐式转换，所以无需显示转换-
+    // 设置玩家初始坐标 [BUG] 忘了- [NOTE]：这里的发生了低精度到高精度的隐式转换，所以无需显示转换-
     player.position.x = game.getWindowWidth() / 2 - player.width / 2;
-    player.position.y = game.getWindowHight() - player.hight;
+    player.position.y = game.getWindowHeight() - player.height;
 
     // 初始化玩家子弹
     projectilePlayerTemplate.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/laser-3.png");
-    SDL_QueryTexture(projectilePlayerTemplate.texture, NULL, NULL, &projectilePlayerTemplate.width, &projectilePlayerTemplate.hight);
+    SDL_QueryTexture(projectilePlayerTemplate.texture, NULL, NULL, &projectilePlayerTemplate.width, &projectilePlayerTemplate.height);
     projectilePlayerTemplate.width /= 4;
-    projectilePlayerTemplate.hight /= 4;
+    projectilePlayerTemplate.height /= 4;
 
     // 初始化敌机
     enemyTemplate.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/insect-2.png");
-    SDL_QueryTexture(enemyTemplate.texture, NULL, NULL, &enemyTemplate.wight, &enemyTemplate.hight);
-    enemyTemplate.wight /= 4;
-    enemyTemplate.hight /= 4;
+    SDL_QueryTexture(enemyTemplate.texture, NULL, NULL, &enemyTemplate.width, &enemyTemplate.height);
+    enemyTemplate.width /= 4;
+    enemyTemplate.height /= 4;
 
     // 初始化敌机子弹
     projectileEnemyTemp.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/bullet-2.png");
-    SDL_QueryTexture(projectileEnemyTemp.texture, NULL, NULL, &projectileEnemyTemp.wight, &projectileEnemyTemp.hight);
-    projectileEnemyTemp.wight /= 4;
-    projectileEnemyTemp.hight /= 4;
+    SDL_QueryTexture(projectileEnemyTemp.texture, NULL, NULL, &projectileEnemyTemp.width, &projectileEnemyTemp.height);
+    projectileEnemyTemp.width /= 4;
+    projectileEnemyTemp.height /= 4;
 
 }
 
@@ -73,21 +73,21 @@ void SceneMain::update(float deltaTime)
 void SceneMain::render()
 {
     // 先渲染子弹，渲染会按照顺序叠加渲染（类似图层）
-    randerProjectilePlayer();
+    renderProjectilePlayer();
 
-    // -x 高精度float转换到低精度的int，会发生数据丢失，C++禁止这样的隐式转换，所以要显示转换-
+    // [BUG] 高精度float转换到低精度的int，会发生数据丢失，C++禁止这样的隐式转换，所以要显示转换-
     SDL_Rect rect = {
         static_cast<int>(player.position.x),
         static_cast<int>(player.position.y),
         player.width,
-        player.hight
+        player.height
     };
-    // 渲染图片 -x 最后一个参数是放置的位置-
+    // 渲染图片 [BUG] 最后一个参数是放置的位置-
     SDL_RenderCopy(game.getRenderer(), player.texture, NULL, &rect);
     // 渲染敌机子弹
-    randerProjectilesEnemy();
+    renderProjectilesEnemy();
     // 渲染敌机
-    randerEnemies();
+    renderEnemies();
 }
 
 void SceneMain::clean()
@@ -179,9 +179,9 @@ void SceneMain::keyboardControl(float deltaTime)
     {
         player.position.y = 0;
     }
-    if (player.position.y > game.getWindowHight() - player.hight)
+    if (player.position.y > game.getWindowHeight() - player.height)
     {
-        player.position.y = game.getWindowHight() - player.hight;
+        player.position.y = game.getWindowHeight() - player.height;
     }
 
     // 发射子弹
@@ -199,10 +199,10 @@ void SceneMain::keyboardControl(float deltaTime)
 
 void SceneMain::shootPlayer()
 {
-    // 设置发射子弹 -x 发射子弹时需要加载子弹材质，频繁访问硬盘会减慢游戏速度- 
+    // 设置发射子弹 [BUG] 发射子弹时需要加载子弹材质，频繁访问硬盘会减慢游戏速度- 
     // 使用指针是因为栈上变量的生命周期不匹配，栈上变量离开函数作用域就会被立刻销毁
     ProjectilePlayer* projectile = new ProjectilePlayer(projectilePlayerTemplate);// 拷贝构造
-    // 设置子弹位置 -x 子弹位置要在发射子弹时再设置-
+    // 设置子弹位置 [BUG] 子弹位置要在发射子弹时再设置-
     projectile->position.x = player.position.x + player.width / 2 - projectile->width / 2;
     projectile->position.y = player.position.y;
     projectilePlayer.push_back(projectile);
@@ -226,12 +226,40 @@ void SceneMain::updatePlayerProjectile(float deltaTime)
         }
         else
         {
-            ++it;
+            bool hit = false;
+            // 检测子弹是否命中
+            for (Enemy* enemy : enemies)
+            {
+                SDL_Rect enemyRect = {
+                                        static_cast<int>(enemy->position.x),
+                                        static_cast<int>(enemy->position.y),
+                                        enemy->width,
+                                        enemy->height
+                };
+                SDL_Rect projRect = {
+                                        static_cast<int>(projectileIt->position.x),
+                                        static_cast<int>(projectileIt->position.y),
+                                        projectileIt->width,
+                                        projectileIt->height
+                };
+                if (SDL_HasIntersection(&enemyRect, &projRect))
+                {
+                    enemy->health -= projectileIt->demage;
+                    delete projectileIt;
+                    it = projectilePlayer.erase(it);
+                    hit = true;
+                    break;
+                }
+            }
+            if (!hit)
+            {
+                ++it;
+            }
         }
     }
 }
 
-void SceneMain::randerProjectilePlayer()
+void SceneMain::renderProjectilePlayer()
 {
     for (auto projectile : projectilePlayer)
     {
@@ -239,7 +267,7 @@ void SceneMain::randerProjectilePlayer()
             static_cast<int>(projectile->position.x),
             static_cast<int>(projectile->position.y),
             projectile->width,
-            projectile->hight
+            projectile->height
         };
         SDL_RenderCopy(game.getRenderer(), projectile->texture, NULL, &projectileRect);
     }
@@ -254,21 +282,21 @@ void SceneMain::spawnEnemy(float deltaTime)
     }
     Enemy* enemy = new Enemy(enemyTemplate);
     // 生成敌机
-    enemy->position.x = dis(gen) * (game.getWindowWidth() - enemy->wight); // -x 限制敌机生成的x坐标-
-    enemy->position.y = - enemy->hight;
+    enemy->position.x = dis(gen) * (game.getWindowWidth() - enemy->width); // [BUG] 限制敌机生成的x坐标-
+    enemy->position.y = - enemy->height;
     // if (enemy->position.x < 0)
     // {
     //     enemy->position.x = 0;
     // }
-    // else if (enemy->position.x > game.getWindowWidth() - enemy->wight)
+    // else if (enemy->position.x > game.getWindowWidth() - enemy->width)
     // {
-    //     enemy->position.x = game.getWindowWidth() - enemy->wight;
+    //     enemy->position.x = game.getWindowWidth() - enemy->width;
     // }
     // 插入容器--list，会生成多个敌机
     enemies.push_back(enemy);
 }
 
-void SceneMain::randerEnemies()
+void SceneMain::renderEnemies()
 {
     // 渲染敌机
     for (auto enemy: enemies)
@@ -276,8 +304,8 @@ void SceneMain::randerEnemies()
         SDL_Rect enemyRect = {
             static_cast<int>(enemy->position.x),
             static_cast<int>(enemy->position.y),
-            enemy->wight,
-            enemy->hight
+            enemy->width,
+            enemy->height
         };
         SDL_RenderCopy(game.getRenderer(), enemy->texture, NULL, &enemyRect);
     }
@@ -286,29 +314,37 @@ void SceneMain::randerEnemies()
 void SceneMain::updateEnemies(float deltaTime)
 {
     Uint32 currentTime = SDL_GetTicks();
-    // -x 更新逻辑和生成逻辑要分开-
+    // [BUG] 更新逻辑和生成逻辑要分开-
     for (auto it = enemies.begin(); it != enemies.end();)
     {
         auto enemy = *it;
         enemy->position.y += enemy->speed * deltaTime;
         // 超过屏幕外销毁敌机
-        if (enemy->position.y > game.getWindowHight())
+        if (enemy->position.y > game.getWindowHeight())
         {
-            delete enemy;// -注： 删除enemy是因为enemy拷贝了*it，使用引用可以避免-
+            delete enemy;// [NOTE]： 删除enemy是因为enemy拷贝了*it，使用引用可以避免-
             // 删除链表中的敌机，更新it
             it = enemies.erase(it);
             // SDL_Log("敌机被删除");
         }
         else
         {
-            // -x 判断敌机是否发射：冷却时间是否到达-
+            // [BUG] 判断敌机是否发射：通过冷却时间-
             if (currentTime - enemy->lastShootTime > enemy->coolDown)
             {
-                // 生成敌机子弹 -x 应在更新敌机是生成子弹，而不是生成敌机时-
+                // 生成敌机子弹 [BUG] 应在更新敌机是生成子弹，而不是生成敌机时-
                 shootProjectilesEnemy(enemy);
                 enemy->lastShootTime = currentTime;
             }
-            ++it;
+            if (enemy->health <= 0)
+            {
+                enemyExplode(enemy);
+                it = enemies.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
         }
     }
 }
@@ -316,9 +352,9 @@ void SceneMain::updateEnemies(float deltaTime)
 void SceneMain::shootProjectilesEnemy(Enemy* enemy)
 {
     ProjectileEnemy* projsEnemy = new ProjectileEnemy(projectileEnemyTemp);
-    // -x 敌机的位置-
-    projsEnemy->position.x = enemy->position.x + enemy->wight / 2 - projsEnemy->wight / 2;
-    projsEnemy->position.y = enemy->position.y + enemy->hight / 2 - projsEnemy->hight / 2;
+    // [BUG] 敌机的位置-
+    projsEnemy->position.x = enemy->position.x + enemy->width / 2 - projsEnemy->width / 2;
+    projsEnemy->position.y = enemy->position.y + enemy->height / 2 - projsEnemy->height / 2;
     // 设置子弹朝向
     projsEnemy->direction = getDirection(enemy);
     projectileEnemy.push_back(projsEnemy);
@@ -333,7 +369,7 @@ void SceneMain::updateEnemyProjectiles(float deltaTime)
         projsEnemy->position.x += projsEnemy->direction.x * projsEnemy->speed * deltaTime;
         projsEnemy->position.y += projsEnemy->direction.y * projsEnemy->speed * deltaTime;
         
-        if (projsEnemy->position.y > game.getWindowHight() + margin||
+        if (projsEnemy->position.y > game.getWindowHeight() + margin||
             projsEnemy->position.y < -margin ||
             projsEnemy->position.x > game.getWindowWidth() + margin ||
             projsEnemy->position.x < -margin)
@@ -351,17 +387,17 @@ void SceneMain::updateEnemyProjectiles(float deltaTime)
     }
 }
 
-void SceneMain::randerProjectilesEnemy()
+void SceneMain::renderProjectilesEnemy()
 {
     for (auto projsEnemy : projectileEnemy)
     {
         SDL_Rect projsRect = {
             static_cast<int>(projsEnemy->position.x),
             static_cast<int>(projsEnemy->position.y),
-            projsEnemy->wight,
-            projsEnemy->hight
+            projsEnemy->width,
+            projsEnemy->height
         };
-        // -注 Cpp允许向下转换-
+        // [NOTE] Cpp允许向下转换-
         float angle = atan2(projsEnemy->direction.y, projsEnemy->direction.x) * 180 / M_PI - 90;
         // SDL_RenderCopy(game.getRenderer(), projsEnemy->texture, NULL, &projsRect);
         SDL_RenderCopyEx(game.getRenderer(), projsEnemy->texture, NULL, &projsRect, angle, NULL, SDL_FLIP_NONE);
@@ -370,11 +406,11 @@ void SceneMain::randerProjectilesEnemy()
 
 SDL_FPoint SceneMain::getDirection(Enemy* enemy)
 {
-    float x = (player.position.x + player.width / 2) - (enemy->position.x + enemy->wight / 2);
-    float y = (player.position.y + player.hight / 2) - (enemy->position.y + enemy->hight / 2);
+    float x = (player.position.x + player.width / 2) - (enemy->position.x + enemy->width / 2);
+    float y = (player.position.y + player.height / 2) - (enemy->position.y + enemy->height / 2);
     float length = sqrt(x * x + y * y);
 
-    // -注：新增：如果距离过小，避免除以0-
+    // [NOTE]：新增：如果距离过小，避免除以0-
     if (length < 0.0001f)
     {
         return SDL_FPoint{0, 1};// 往下飞
@@ -383,4 +419,9 @@ SDL_FPoint SceneMain::getDirection(Enemy* enemy)
     x /= length;
     y /= length;
     return SDL_FPoint{x, y};
+}
+
+void SceneMain::enemyExplode(Enemy * enemy)
+{
+    delete enemy;
 }
