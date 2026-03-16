@@ -59,6 +59,7 @@ void SceneMain::handleEvent(SDL_Event* event)
 
 void SceneMain::update(float deltaTime)
 {
+    updatePlayer(deltaTime);
     keyboardControl(deltaTime);
     // 更新玩家子弹
     updatePlayerProjectile(deltaTime);
@@ -75,15 +76,8 @@ void SceneMain::render()
     // 先渲染子弹，渲染会按照顺序叠加渲染（类似图层）
     renderProjectilePlayer();
 
-    // [BUG] 高精度float转换到低精度的int，会发生数据丢失，C++禁止这样的隐式转换，所以要显示转换-
-    SDL_Rect rect = {
-        static_cast<int>(player.position.x),
-        static_cast<int>(player.position.y),
-        player.width,
-        player.height
-    };
-    // 渲染图片 [BUG] 最后一个参数是放置的位置-
-    SDL_RenderCopy(game.getRenderer(), player.texture, NULL, &rect);
+    renderPlayer();
+
     // 渲染敌机子弹
     renderProjectilesEnemy();
     // 渲染敌机
@@ -146,6 +140,10 @@ void SceneMain::clean()
 
 void SceneMain::keyboardControl(float deltaTime)
 {
+    if (!isAlive)
+    {
+        return;
+    }
     auto keyboardState = SDL_GetKeyboardState(NULL);
     // 读取键盘状态，设置速度
     if (keyboardState[SDL_SCANCODE_W])
@@ -208,6 +206,19 @@ void SceneMain::shootPlayer()
     projectilePlayer.push_back(projectile);
 }
 
+void SceneMain::updatePlayer(float deltaTime)
+{
+    if (!isAlive)
+    {
+        return;
+    }
+
+    if (player.health <= 0)
+    {
+        isAlive = false;
+    }
+}
+
 void SceneMain::updatePlayerProjectile(float deltaTime)
 {
     int margin = 32; // 边缘
@@ -228,6 +239,13 @@ void SceneMain::updatePlayerProjectile(float deltaTime)
         {
             bool hit = false;
             // 检测子弹是否命中
+            // [OPT] 碰撞检测期间子弹位置是不变的，移动到循环外减少重复计算
+            SDL_Rect projRect = {
+                                    static_cast<int>(projectileIt->position.x),
+                                    static_cast<int>(projectileIt->position.y),
+                                    projectileIt->width,
+                                    projectileIt->height
+            };
             for (Enemy* enemy : enemies)
             {
                 SDL_Rect enemyRect = {
@@ -236,13 +254,7 @@ void SceneMain::updatePlayerProjectile(float deltaTime)
                                         enemy->width,
                                         enemy->height
                 };
-                SDL_Rect projRect = {
-                                        static_cast<int>(projectileIt->position.x),
-                                        static_cast<int>(projectileIt->position.y),
-                                        projectileIt->width,
-                                        projectileIt->height
-                };
-                if (SDL_HasIntersection(&enemyRect, &projRect))
+                if (isAlive && SDL_HasIntersection(&enemyRect, &projRect))
                 {
                     enemy->health -= projectileIt->demage;
                     delete projectileIt;
@@ -296,6 +308,22 @@ void SceneMain::spawnEnemy(float deltaTime)
     enemies.push_back(enemy);
 }
 
+void SceneMain::renderPlayer()
+{
+    if (isAlive)
+    {
+        // [BUG] 高精度float转换到低精度的int，会发生数据丢失，C++禁止这样的隐式转换，所以要显示转换-
+        SDL_Rect rect = {
+            static_cast<int>(player.position.x),
+            static_cast<int>(player.position.y),
+            player.width,
+            player.height
+        };
+        // 渲染图片 [BUG] 最后一个参数是放置的位置-
+        SDL_RenderCopy(game.getRenderer(), player.texture, NULL, &rect);
+    }
+}
+
 void SceneMain::renderEnemies()
 {
     // 渲染敌机
@@ -330,12 +358,31 @@ void SceneMain::updateEnemies(float deltaTime)
         else
         {
             // [BUG] 判断敌机是否发射：通过冷却时间-
-            if (currentTime - enemy->lastShootTime > enemy->coolDown)
+            if (isAlive && currentTime - enemy->lastShootTime > enemy->coolDown)
             {
                 // 生成敌机子弹 [BUG] 应在更新敌机是生成子弹，而不是生成敌机时-
                 shootProjectilesEnemy(enemy);
                 enemy->lastShootTime = currentTime;
             }
+            // [LEARN] 也可以写在updatePlayer中，碰撞检测
+            SDL_Rect enemyRect = {
+                                    static_cast<int>(enemy->position.x),
+                                    static_cast<int>(enemy->position.y),
+                                    enemy->width,
+                                    enemy->height,
+            };
+            SDL_Rect playerRect = {
+                                    static_cast<int>(player.position.x),
+                                    static_cast<int>(player.position.y),
+                                    player.width,
+                                    player.height,
+            };
+            if (isAlive && SDL_HasIntersection(&enemyRect, &playerRect))
+            {
+                enemy->health = 0;
+                player.health -= 1;
+            }
+
             if (enemy->health <= 0)
             {
                 enemyExplode(enemy);
@@ -382,7 +429,29 @@ void SceneMain::updateEnemyProjectiles(float deltaTime)
         }
         else
         {
-            ++it;
+            // 判断敌机子弹是否打中玩家
+            SDL_Rect projRect = {
+                                    static_cast<int>(projsEnemy->position.x),
+                                    static_cast<int>(projsEnemy->position.y),
+                                    projsEnemy->width,
+                                    projsEnemy->height,
+            };
+            SDL_Rect playerRect = {
+                                    static_cast<int>(player.position.x),
+                                    static_cast<int>(player.position.y),
+                                    player.width,
+                                    player.height,
+            };
+            if (isAlive && SDL_HasIntersection(&projRect, &playerRect))
+            {
+                player.health -= projsEnemy->demage;
+                delete projsEnemy;
+                it = projectileEnemy.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
         }
     }
 }

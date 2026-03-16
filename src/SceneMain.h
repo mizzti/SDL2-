@@ -23,23 +23,26 @@ public:
 
     void keyboardControl(float deltaTime);
     void shootPlayer();
+    
+    void updatePlayer(float deltaTime);
     void updatePlayerProjectile(float deltaTime);
-    void renderProjectilePlayer();
-
-    void spawnEnemy(float deltaTime);
-    void renderEnemies();
     void updateEnemies(float deltaTime);
-
-    void shootProjectilesEnemy(Enemy* enemy);
     void updateEnemyProjectiles(float deltaTime);
+    
+    void renderPlayer();
+    void renderEnemies();
+    void renderProjectilePlayer();
     void renderProjectilesEnemy();
+    
+    void spawnEnemy(float deltaTime);
+    void shootProjectilesEnemy(Enemy* enemy);
     SDL_FPoint getDirection(Enemy* enemy);
-
     void enemyExplode(Enemy* enemy);
 
 private:
     Game& game;
     Player player;
+    bool isAlive = true;
 
     ProjectilePlayer projectilePlayerTemplate;
     Enemy enemyTemplate;
