@@ -28,16 +28,19 @@ public:
     void updatePlayerProjectile(float deltaTime);
     void updateEnemies(float deltaTime);
     void updateEnemyProjectiles(float deltaTime);
+    void updateExplosions(float deltaTime);
     
     void renderPlayer();
     void renderEnemies();
     void renderProjectilePlayer();
     void renderProjectilesEnemy();
+    void renderExplosions();
     
     void spawnEnemy(float deltaTime);
     void shootProjectilesEnemy(Enemy* enemy);
     SDL_FPoint getDirection(Enemy* enemy);
     void enemyExplode(Enemy* enemy);
+    void playerExplode();
 
 private:
     Game& game;
@@ -47,6 +50,8 @@ private:
     ProjectilePlayer projectilePlayerTemplate;
     Enemy enemyTemplate;
     ProjectileEnemy projectileEnemyTemp;
+
+    Explosion explosionTemp;
     
     std::mt19937 gen;// 随机数引擎
     std::uniform_real_distribution<float> dis;
@@ -54,6 +59,7 @@ private:
     std::list<ProjectilePlayer*> projectilePlayer;// 使用指针避免栈上内存过多
     std::list<Enemy*> enemies;
     std::list<ProjectileEnemy*> projectileEnemy;
+    std::list<Explosion*> explosions;
 
 };
 

@@ -28,7 +28,7 @@ struct ProjectilePlayer
     int width = 0;
     int height = 0;
     // [BUG] 没有设定速度，所以子弹就无法被射出-
-    int speed = 200;
+    int speed = 300;
     int demage = 1;
 };
 
@@ -40,7 +40,7 @@ struct Enemy
     int height = 0;
     int speed = 100;
 
-    Uint32 coolDown = 1000;
+    Uint32 coolDown = 2000;
     Uint32 lastShootTime = 0;
 
     int health = 2;
@@ -54,9 +54,21 @@ struct ProjectileEnemy
     SDL_FPoint direction = {0, 0};
     int width = 0;
     int height = 0;
-    int speed = 200;
+    int speed = 180;
 
     int demage = 1;
+};
+
+struct Explosion
+{
+    SDL_Texture* texture;
+    SDL_FPoint position = {0, 0};
+    int width = 0;
+    int height = 0;
+    int curFrame = 0;
+    int totalFrame = 0;
+    Uint32 startTime = 0;
+    int FPS = 10;
 };
 
 #endif

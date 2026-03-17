@@ -21,7 +21,7 @@ public:
     void clean();
 
     void handleEvent(SDL_Event* e);
-    void update(float deltaTime);
+    void update(float deltaT);
     void render();
 
     SDL_Renderer* getRenderer()

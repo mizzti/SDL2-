@@ -124,9 +124,9 @@ void Game::handleEvent(SDL_Event* event)
     }
 }
 
-void Game::update(float deltaTime)
+void Game::update(float deltaT)
 {
-    currentScene->update(deltaTime);
+    currentScene->update(deltaT);
 }
 
 void Game::render()
