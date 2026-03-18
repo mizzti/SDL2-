@@ -3,6 +3,13 @@
 
 #include <SDL.h>
 
+enum class ItemType
+{
+    Life,
+    Shield,
+    Time
+};
+
 struct Player
 {
     // 玩家材质 [BUG] -
@@ -69,6 +76,16 @@ struct Explosion
     int totalFrame = 0;
     Uint32 startTime = 0;
     int FPS = 10;
+};
+
+struct Item
+{
+    SDL_Texture* texture;
+    SDL_FPoint position = {0, 0};
+    SDL_FPoint direction = {0, 0};
+    int width = 0;
+    int height = 0;
+    ItemType type = ItemType::Life;
 };
 
 #endif

@@ -5,7 +5,7 @@
 #include <SDL.h>
 #include <random>
 
-SceneMain::SceneMain() : game(Game::getInstance())
+SceneMain::SceneMain() : game(Game::getInstance()), random(Random::getInstance())
 {
 }
 
@@ -15,13 +15,6 @@ SceneMain::~SceneMain()
 
 void SceneMain::init()
 {
-    // 生成随机数种子
-    std::random_device rd;
-    // 生成随机数引擎
-    gen = std::mt19937(rd());// [NOTE] rd()：重载了(）,可以直接进行调用-
-    // 创建指定分布
-    dis = std::uniform_real_distribution<float>(0, 1);
-
     // 初始化player [BUG] -
     player.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/SpaceShip.png");
     // 获取材质的长宽作为player的长宽，注意float到int* [BUG] 设置的是玩家的宽高，不是位置-
@@ -56,6 +49,12 @@ void SceneMain::init()
     SDL_QueryTexture(explosionTemp.texture, NULL, NULL, &explosionTemp.width, &explosionTemp.height);
     explosionTemp.totalFrame = explosionTemp.width / explosionTemp.height;
     explosionTemp.width = explosionTemp.height; // 矩形
+
+    // 初始化掉落物品--增加生命值
+    itemLifeTemp.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/bonus_life.png");
+    SDL_QueryTexture(itemLifeTemp.texture, NULL, NULL, &itemLifeTemp.width, &itemLifeTemp.height);
+    itemLifeTemp.width /= 2;
+    itemLifeTemp.height /= 2;
 }
 
 void SceneMain::handleEvent(SDL_Event* event)
@@ -339,6 +338,7 @@ void SceneMain::updateEnemies(float deltaTime)
             if (enemy->health <= 0)
             {
                 enemyExplode(enemy);
+                spawnLifeItem(enemy);
                 it = enemies.erase(it);
             }
             else
@@ -421,13 +421,13 @@ void SceneMain::updateExplosions(float)
 void SceneMain::spawnEnemy(float)
 {
     // 随机生成刷新敌机时间
-    if (dis(gen) > 1 / 60.0f)
+    if (random.getFloat() > 1 / 60.0f)
     {
         return;// 不刷新敌机
     }
     Enemy* enemy = new Enemy(enemyTemplate);
     // 生成敌机
-    enemy->position.x = dis(gen) * (game.getWindowWidth() - enemy->width); // [BUG] 限制敌机生成的x坐标-
+    enemy->position.x = random.getFloat() * (game.getWindowWidth() - enemy->width); // [BUG] 限制敌机生成的x坐标-
     enemy->position.y = - enemy->height;
     // 插入容器--list，会生成多个敌机
     enemies.push_back(enemy);
@@ -561,4 +561,11 @@ void SceneMain::playerExplode()
     explode->position.y = player.position.y + player.height/2 - player.height/2;
     explode->startTime = curTime;
     explosions.push_back(explode);
+}
+
+void SceneMain::spawnLifeItem(Enemy* enemy)
+{
+    Item* itemLife = new Item(itemLifeTemp);
+    itemLife->position.x = enemy->position.x + enemy->width/2 - itemLife->width/2;
+    itemLife->position.y = enemy->position.y + enemy->height/2 - itemLife->height/2;
 }

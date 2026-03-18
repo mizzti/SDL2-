@@ -3,6 +3,7 @@
 
 #include "Scene.h"
 #include "Object.h"
+#include "Random.h"
 #include <list>
 #include <random>
 
@@ -41,26 +42,28 @@ public:
     SDL_FPoint getDirection(Enemy* enemy);
     void enemyExplode(Enemy* enemy);
     void playerExplode();
+    void spawnLifeItem(Enemy* enemy);
 
 private:
     Game& game;
+    Random& random;
     Player player;
     bool isAlive = true;
 
     ProjectilePlayer projectilePlayerTemplate;
     Enemy enemyTemplate;
     ProjectileEnemy projectileEnemyTemp;
-
     Explosion explosionTemp;
+    Item itemLifeTemp;
     
-    std::mt19937 gen;// 随机数引擎
-    std::uniform_real_distribution<float> dis;
+    // std::mt19937 gen;// 随机数引擎
+    // std::uniform_real_distribution<float> dis;
     
     std::list<ProjectilePlayer*> projectilePlayer;// 使用指针避免栈上内存过多
     std::list<Enemy*> enemies;
     std::list<ProjectileEnemy*> projectileEnemy;
     std::list<Explosion*> explosions;
-
+    std::list<Item*> items;
 };
 
 #endif
