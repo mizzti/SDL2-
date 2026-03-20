@@ -30,19 +30,22 @@ public:
     void updateEnemies(float deltaTime);
     void updateEnemyProjectiles(float deltaTime);
     void updateExplosions(float deltaTime);
+    void updateItem(float deltaTime);
     
     void renderPlayer();
     void renderEnemies();
     void renderProjectilePlayer();
     void renderProjectilesEnemy();
     void renderExplosions();
+    void renderItem();
     
     void spawnEnemy(float deltaTime);
     void shootProjectilesEnemy(Enemy* enemy);
     SDL_FPoint getDirection(Enemy* enemy);
     void enemyExplode(Enemy* enemy);
     void playerExplode();
-    void spawnLifeItem(Enemy* enemy);
+    void dropItem(Enemy* enemy);
+    void playerGetItem(Item* item);
 
 private:
     Game& game;

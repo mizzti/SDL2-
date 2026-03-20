@@ -57,7 +57,7 @@ void SceneMain::init()
     itemLifeTemp.height /= 2;
 }
 
-void SceneMain::handleEvent(SDL_Event* event)
+void SceneMain::handleEvent(SDL_Event*)
 {
 }
 
@@ -71,6 +71,7 @@ void SceneMain::update(float deltaTime)
     spawnEnemy(deltaTime);
     // 更新敌机位置
     updateEnemies(deltaTime);
+    updateItem(deltaTime);
     // 更新敌机子弹
     updateEnemyProjectiles(deltaTime);
     updateExplosions(deltaTime);
@@ -80,13 +81,12 @@ void SceneMain::render()
 {
     // 先渲染子弹，渲染会按照顺序叠加渲染（类似图层）
     renderProjectilePlayer();
-
     renderPlayer();
-
     // 渲染敌机子弹
     renderProjectilesEnemy();
     // 渲染敌机
     renderEnemies();
+    renderItem();
     renderExplosions();
 }
 
@@ -101,7 +101,6 @@ void SceneMain::clean()
         }
     }
     projectilePlayer.clear();
-
     for (auto& enemy: enemies)
     {
         if (enemy != nullptr)
@@ -110,7 +109,6 @@ void SceneMain::clean()
         }
     }
     enemies.clear();
-
     for (auto& projsEnemy : projectileEnemy)
     {
         if (projsEnemy != nullptr)
@@ -119,7 +117,6 @@ void SceneMain::clean()
         }
     }
     projectileEnemy.clear();
-
     for (auto& explode : explosions)
     {
         if (explode != nullptr)
@@ -128,6 +125,14 @@ void SceneMain::clean()
         }
     }
     explosions.clear();
+    for (auto& item : items)
+    {
+        if (item != nullptr)
+        {
+            delete item;
+        }
+    }
+    items.clear();
 
     // 释放材质 
     if (player.texture != nullptr)
@@ -155,6 +160,11 @@ void SceneMain::clean()
     {
         SDL_DestroyTexture(explosionTemp.texture);
         explosionTemp.texture = nullptr;
+    }
+    if (itemLifeTemp.texture != nullptr)
+    {
+        SDL_DestroyTexture(itemLifeTemp.texture);
+        itemLifeTemp.texture = nullptr;
     }
 }
 
@@ -233,7 +243,7 @@ void SceneMain::updatePlayer(float)
         return;
     }
 
-    if (player.health <= 0)
+    if (player.curHealth <= 0)
     {
         playerExplode();
     }
@@ -332,13 +342,12 @@ void SceneMain::updateEnemies(float deltaTime)
             if (isAlive && SDL_HasIntersection(&enemyRect, &playerRect))
             {
                 enemy->health = 0;
-                player.health -= 1;
+                player.curHealth -= 1;
             }
 
             if (enemy->health <= 0)
             {
                 enemyExplode(enemy);
-                spawnLifeItem(enemy);
                 it = enemies.erase(it);
             }
             else
@@ -386,7 +395,7 @@ void SceneMain::updateEnemyProjectiles(float deltaTime)
             };
             if (isAlive && SDL_HasIntersection(&projRect, &playerRect))
             {
-                player.health -= projsEnemy->demage;
+                player.curHealth -= projsEnemy->demage;
                 delete projsEnemy;
                 it = projectileEnemy.erase(it);
             }
@@ -414,6 +423,67 @@ void SceneMain::updateExplosions(float)
         else
         {
             ++it;
+        }
+    }
+}
+
+void SceneMain::updateItem(float deltaTime)
+{
+    for (auto it = items.begin(); it != items.end();)
+    {
+        Item* item = *it;
+        // [BUG]应累加位置+=
+        item->position.x += item->direction.x * item->speed * deltaTime;
+        item->position.y += item->direction.y * item->speed * deltaTime;
+        // 边缘反弹 [BUG]先判断是否需要反弹
+        // 检查物品和是否超过屏幕边界
+        if ((item->position.x < 0 || item->position.x + item->width > game.getWindowWidth()) 
+            && item->bounceCount > 0)
+        {
+            item->direction.x = - item->direction.x;
+            item->bounceCount--;
+        }
+        if ((item->position.y < 0 || item->position.y + item->height > game.getWindowHeight())
+            && item->bounceCount > 0)
+        {
+            item->direction.y = - item->direction.y;
+            item->bounceCount--;
+        }
+        // 物品超出屏幕后删除
+        if (item->position.x + item->width < 0 || 
+            item->position.x > game.getWindowWidth() ||
+            item->position.y + item->height < 0 ||
+            item->position.y > game.getWindowHeight())
+        {
+            delete item;
+            it = items.erase(it);
+            // SDL_Log("itemLife被删除");
+        }
+        else
+        {
+            // 与玩家的碰撞检测
+            SDL_Rect itemRect = {
+                static_cast<int>(item->position.x), 
+                static_cast<int>(item->position.y), 
+                item->width, 
+                item->height
+            };
+            SDL_Rect playerRect = {
+                static_cast<int>(player.position.x), 
+                static_cast<int>(player.position.y), 
+                player.width, 
+                player.height
+            };
+            if (SDL_HasIntersection(&itemRect, &playerRect))
+            {
+                playerGetItem(item);
+                delete item;
+                it = items.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
         }
     }
 }
@@ -512,6 +582,20 @@ void SceneMain::renderExplosions()
     }
 }
 
+void SceneMain::renderItem()
+{
+    for (Item* item : items)
+    {
+        SDL_Rect itemRect = {
+            static_cast<int>(item->position.x),
+            static_cast<int>(item->position.y), 
+            item->width, 
+            item->height
+        };
+        SDL_RenderCopy(game.getRenderer(), item->texture, NULL, &itemRect);
+    }
+}
+
 void SceneMain::shootProjectilesEnemy(Enemy* enemy)
 {
     ProjectileEnemy* projsEnemy = new ProjectileEnemy(projectileEnemyTemp);
@@ -549,6 +633,11 @@ void SceneMain::enemyExplode(Enemy* enemy)
     explode->position.y = enemy->position.y + enemy->height/2 - explode->height/2;
     explode->startTime = curTime;
     explosions.push_back(explode);
+    // 设置掉落概率
+    if (random.getFloat() < 0.5f)
+    {
+        dropItem(enemy);
+    }
     delete enemy;
 }
 
@@ -563,9 +652,21 @@ void SceneMain::playerExplode()
     explosions.push_back(explode);
 }
 
-void SceneMain::spawnLifeItem(Enemy* enemy)
+void SceneMain::dropItem(Enemy* enemy)
 {
     Item* itemLife = new Item(itemLifeTemp);
     itemLife->position.x = enemy->position.x + enemy->width/2 - itemLife->width/2;
     itemLife->position.y = enemy->position.y + enemy->height/2 - itemLife->height/2;
+    float dir = random.getFloat() * 2 * M_PI;
+    itemLife->direction.x = std::cos(dir);
+    itemLife->direction.y = std::sin(dir);
+    items.push_back(itemLife);
+}
+
+void SceneMain::playerGetItem(Item* item)
+{
+    if (item->type == ItemType::Life && player.curHealth < player.maxHealth)
+    {
+        player.curHealth += 1;
+    }
 }

@@ -25,7 +25,8 @@ struct Player
     Uint32 coolDown =  500;// 发射子弹的冷却时间，毫秒
     Uint32 lastShootTime = 0;// 记录上一次的子弹发射时间
 
-    int health = 3;
+    int maxHealth = 3;
+    int curHealth = maxHealth;
 };
 
 struct ProjectilePlayer
@@ -61,7 +62,7 @@ struct ProjectileEnemy
     SDL_FPoint direction = {0, 0};
     int width = 0;
     int height = 0;
-    int speed = 180;
+    int speed = 150;
 
     int demage = 1;
 };
@@ -85,7 +86,9 @@ struct Item
     SDL_FPoint direction = {0, 0};
     int width = 0;
     int height = 0;
+    int speed = 150;
     ItemType type = ItemType::Life;
+    int bounceCount = 3;
 };
 
 #endif
