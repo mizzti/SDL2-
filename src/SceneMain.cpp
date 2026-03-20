@@ -15,6 +15,13 @@ SceneMain::~SceneMain()
 
 void SceneMain::init()
 {
+    // 读取、播放音频
+    bgm = Mix_LoadMUS("assets/music/03_Racing_Through_Asteroids_Loop.ogg");
+    if (bgm == nullptr)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load BGM: %s\n", Mix_GetError());
+    }
+    Mix_PlayMusic(bgm, -1);
     // 初始化player [BUG] -
     player.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/SpaceShip.png");
     // 获取材质的长宽作为player的长宽，注意float到int* [BUG] 设置的是玩家的宽高，不是位置-
@@ -55,6 +62,7 @@ void SceneMain::init()
     SDL_QueryTexture(itemLifeTemp.texture, NULL, NULL, &itemLifeTemp.width, &itemLifeTemp.height);
     itemLifeTemp.width /= 2;
     itemLifeTemp.height /= 2;
+
 }
 
 void SceneMain::handleEvent(SDL_Event*)
@@ -165,6 +173,15 @@ void SceneMain::clean()
     {
         SDL_DestroyTexture(itemLifeTemp.texture);
         itemLifeTemp.texture = nullptr;
+    }
+
+    // 清理音乐
+    if (bgm != nullptr)
+    {
+        // 关闭音乐
+        Mix_HaltMusic();
+        // 清理
+        Mix_FreeMusic(bgm);
     }
 }
 
@@ -435,7 +452,7 @@ void SceneMain::updateItem(float deltaTime)
         // [BUG]应累加位置+=
         item->position.x += item->direction.x * item->speed * deltaTime;
         item->position.y += item->direction.y * item->speed * deltaTime;
-        // 边缘反弹 [BUG]先判断是否需要反弹
+        // 边缘反弹 [BUG]先判断是否需要反弹，反弹的位置判断需要注意
         // 检查物品和是否超过屏幕边界
         if ((item->position.x < 0 || item->position.x + item->width > game.getWindowWidth()) 
             && item->bounceCount > 0)

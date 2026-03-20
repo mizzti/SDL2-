@@ -2,6 +2,8 @@
 #include "SceneMain.h"
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
+#include <SDL_mixer.h>
 
 Game::Game()
 {
@@ -81,6 +83,20 @@ void Game::init()
         isRunning = false;
     }
 
+    if (Mix_Init(MIX_INIT_MP3 | MIX_INIT_OGG) != (MIX_INIT_MP3 | MIX_INIT_OGG))
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_MIX INIT ERROR: %S\n", Mix_GetError());
+        isRunning = false;
+    }
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)\
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_MIX OPEN AUDIO ERROR: %S\n", Mix_GetError());
+        isRunning = false;
+    }
+    // 调节音频大小
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
+
     currentScene = new SceneMain();
     currentScene->init();
 }
@@ -101,6 +117,8 @@ void Game::changeScene(Scene* nextScene)
 
 void Game::clean()
 {
+    Mix_CloseAudio();
+    Mix_Quit();
     // 退出图片
     IMG_Quit();
     // 释放窗口

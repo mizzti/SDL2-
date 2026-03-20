@@ -6,6 +6,7 @@
 #include "Random.h"
 #include <list>
 #include <random>
+#include <SDL_Mixer.h>
 
 class Game; // 不直接inclue是为防止循环引入头文件
 
@@ -50,6 +51,7 @@ public:
 private:
     Game& game;
     Random& random;
+    Mix_Music* bgm;// 使用的地方创建而非Game类
     Player player;
     bool isAlive = true;
 
