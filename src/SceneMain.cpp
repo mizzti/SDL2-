@@ -69,8 +69,8 @@ void SceneMain::init()
     // 初始化掉落物品--增加生命值
     itemLifeTemp.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/bonus_life.png");
     SDL_QueryTexture(itemLifeTemp.texture, NULL, NULL, &itemLifeTemp.width, &itemLifeTemp.height);
-    // itemLifeTemp.width /= 2;
-    // itemLifeTemp.height /= 2;
+    itemLifeTemp.width /= 3;
+    itemLifeTemp.height /= 3;
 
 }
 
@@ -510,7 +510,7 @@ void SceneMain::updateItem(float deltaTime)
                 player.width, 
                 player.height
             };
-            if (isAlive && (&itemRect, &playerRect))
+            if (isAlive && SDL_HasIntersection(&itemRect, &playerRect))
             {
                 playerGetItem(item);
                 delete item;
