@@ -22,6 +22,15 @@ void SceneMain::init()
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load BGM: %s\n", Mix_GetError());
     }
     Mix_PlayMusic(bgm, -1);
+
+    // 初始化音效
+    sounds["playerShoot"] = Mix_LoadWAV("assets/sound/laser_shoot4.wav");
+    sounds["enemyShoot"] = Mix_LoadWAV("assets/sound/xs_laser.wav");
+    sounds["playerExplode"] = Mix_LoadWAV("assets/sound/explosion1.wav");
+    sounds["enemyExplode"] = Mix_LoadWAV("assets/sound/explosion3.wav");
+    sounds["hit"] = Mix_LoadWAV("assets/sound/eff11.wav");
+    sounds["getItem"] = Mix_LoadWAV("assets/sound/eff5.wav");
+
     // 初始化player [BUG] -
     player.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/SpaceShip.png");
     // 获取材质的长宽作为player的长宽，注意float到int* [BUG] 设置的是玩家的宽高，不是位置-
@@ -60,8 +69,8 @@ void SceneMain::init()
     // 初始化掉落物品--增加生命值
     itemLifeTemp.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/bonus_life.png");
     SDL_QueryTexture(itemLifeTemp.texture, NULL, NULL, &itemLifeTemp.width, &itemLifeTemp.height);
-    itemLifeTemp.width /= 2;
-    itemLifeTemp.height /= 2;
+    // itemLifeTemp.width /= 2;
+    // itemLifeTemp.height /= 2;
 
 }
 
@@ -141,6 +150,15 @@ void SceneMain::clean()
         }
     }
     items.clear();
+
+    for (auto& sound : sounds)
+    {
+        if (sound.second != nullptr)
+        {
+            Mix_FreeChunk(sound.second);
+        }
+    }
+    sounds.clear();
 
     // 释放材质 
     if (player.texture != nullptr)
@@ -251,6 +269,7 @@ void SceneMain::shootPlayer()
     projectile->position.x = player.position.x + player.width / 2 - projectile->width / 2;
     projectile->position.y = player.position.y;
     projectilePlayer.push_back(projectile);
+    Mix_PlayChannel(0, sounds["playerShoot"], 0);
 }
 
 void SceneMain::updatePlayer(float)
@@ -491,7 +510,7 @@ void SceneMain::updateItem(float deltaTime)
                 player.width, 
                 player.height
             };
-            if (SDL_HasIntersection(&itemRect, &playerRect))
+            if (isAlive && (&itemRect, &playerRect))
             {
                 playerGetItem(item);
                 delete item;
@@ -651,7 +670,7 @@ void SceneMain::enemyExplode(Enemy* enemy)
     explode->startTime = curTime;
     explosions.push_back(explode);
     // 设置掉落概率
-    if (random.getFloat() < 0.5f)
+    if (random.getFloat() < 1.0f)
     {
         dropItem(enemy);
     }

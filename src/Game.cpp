@@ -94,8 +94,12 @@ void Game::init()
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_MIX OPEN AUDIO ERROR: %S\n", Mix_GetError());
         isRunning = false;
     }
+
+    // 设置channel数量
+    Mix_AllocateChannels(32);
     // 调节音频大小
     Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
+    Mix_Volume(-1, MIX_MAX_VOLUME / 4);
 
     currentScene = new SceneMain();
     currentScene->init();

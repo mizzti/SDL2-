@@ -7,6 +7,7 @@
 #include <list>
 #include <random>
 #include <SDL_Mixer.h>
+#include <map>
 
 class Game; // 不直接inclue是为防止循环引入头文件
 
@@ -69,6 +70,7 @@ private:
     std::list<ProjectileEnemy*> projectileEnemy;
     std::list<Explosion*> explosions;
     std::list<Item*> items;
+    std::map<std::string, Mix_Chunk*> sounds;
 };
 
 #endif
