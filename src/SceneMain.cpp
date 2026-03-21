@@ -326,6 +326,7 @@ void SceneMain::updatePlayerProjectile(float deltaTime)
                     delete projectileIt;
                     it = projectilePlayer.erase(it);
                     hit = true;
+                    Mix_PlayChannel(-1, sounds["hit"], 0);
                     break;
                 }
             }
@@ -434,6 +435,7 @@ void SceneMain::updateEnemyProjectiles(float deltaTime)
                 player.curHealth -= projsEnemy->demage;
                 delete projsEnemy;
                 it = projectileEnemy.erase(it);
+                Mix_PlayChannel(-1, sounds["hit"], 0);
             }
             else
             {
@@ -641,6 +643,7 @@ void SceneMain::shootProjectilesEnemy(Enemy* enemy)
     // 设置子弹朝向
     projsEnemy->direction = getDirection(enemy);
     projectileEnemy.push_back(projsEnemy);
+    Mix_PlayChannel(-1, sounds["enemyShoot"], 0);
 }
 
 SDL_FPoint SceneMain::getDirection(Enemy* enemy)
@@ -669,8 +672,9 @@ void SceneMain::enemyExplode(Enemy* enemy)
     explode->position.y = enemy->position.y + enemy->height/2 - explode->height/2;
     explode->startTime = curTime;
     explosions.push_back(explode);
+    Mix_PlayChannel(-1, sounds["enemyExplode"], 0);
     // 设置掉落概率
-    if (random.getFloat() < 1.0f)
+    if (random.getFloat() < 0.6f)
     {
         dropItem(enemy);
     }
@@ -686,6 +690,7 @@ void SceneMain::playerExplode()
     explode->position.y = player.position.y + player.height/2 - player.height/2;
     explode->startTime = curTime;
     explosions.push_back(explode);
+    Mix_PlayChannel(-1, sounds["playerExplode"], 0);
 }
 
 void SceneMain::dropItem(Enemy* enemy)
@@ -701,6 +706,7 @@ void SceneMain::dropItem(Enemy* enemy)
 
 void SceneMain::playerGetItem(Item* item)
 {
+    Mix_PlayChannel(-1, sounds["hit"], 0);
     if (item->type == ItemType::Life && player.curHealth < player.maxHealth)
     {
         player.curHealth += 1;
