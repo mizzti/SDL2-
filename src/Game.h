@@ -3,6 +3,7 @@
 #ifndef GAME_H
 #define GAME_H
 #include "Scene.h"
+#include "Object.h"
 #include <SDL.h>
 
 class Game
@@ -23,7 +24,9 @@ public:
     void handleEvent(SDL_Event* e);
     void update(float deltaT);
     void render();
-
+    void renderBackground();
+    void backgroudUpdate(float deltaT);
+    
     SDL_Renderer* getRenderer()
     {
         return renderer;
@@ -48,6 +51,8 @@ private:
     Game();
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete; // [BUG] 删除拷贝运算符的参数-
+    Background farStars;
+    Background nearStars;
 
     bool isRunning = true;
     Scene* currentScene = nullptr;

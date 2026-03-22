@@ -52,6 +52,7 @@ void Game::init()
 {
     // 计算frameTime每秒内一帧所用时间 [BUG] 目标时间计算公式- 单位毫秒
     frameTime = 1000 / FPS;
+    deltaTime = frameTime / 1000.0f;// 防止第一帧出现的随机值
     // SDL初始化
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
     {
@@ -95,6 +96,15 @@ void Game::init()
         isRunning = false;
     }
 
+    nearStars.texture = IMG_LoadTexture(getRenderer(), "assets/image/Stars-A.png");
+    SDL_QueryTexture(nearStars.texture, NULL, NULL, &nearStars.width, &nearStars.height);
+    nearStars.width /= 2;
+    nearStars.height /= 2;
+    farStars.texture = IMG_LoadTexture(getRenderer(), "assets/image/Stars-B.png");
+    SDL_QueryTexture(farStars.texture, NULL, NULL, &farStars.width, &farStars.height);
+    farStars.width /= 2;
+    farStars.height /= 2;
+
     // 设置channel数量
     Mix_AllocateChannels(32);
     // 调节音频大小
@@ -121,6 +131,22 @@ void Game::changeScene(Scene* nextScene)
 
 void Game::clean()
 {
+    if (currentScene != nullptr)
+    {
+        currentScene->clean();
+        delete currentScene;
+    }
+    if (nearStars.texture != nullptr)
+    {
+        SDL_DestroyTexture(nearStars.texture);
+        nearStars.texture = nullptr;
+    }
+    if (farStars.texture != nullptr)
+    {
+        SDL_DestroyTexture(farStars.texture);
+        farStars.texture = nullptr;
+    }
+
     Mix_CloseAudio();
     Mix_Quit();
     // 退出图片
@@ -148,6 +174,7 @@ void Game::handleEvent(SDL_Event* event)
 
 void Game::update(float deltaT)
 {
+    backgroudUpdate(deltaT);
     currentScene->update(deltaT);
 }
 
@@ -155,8 +182,46 @@ void Game::render()
 {
     // 清空
     SDL_RenderClear(renderer);
-    // 渲染
+    // 渲染星空背景
+    renderBackground();
+    // 渲染主场景
     currentScene->render();
     // 更新显示
     SDL_RenderPresent(renderer);
+}
+
+void Game::renderBackground()
+{
+    for (int poY = static_cast<int>(farStars.yOffset); poY < getWindowHeight(); poY += farStars.height)
+    {
+        for (int poX = 0; poX < getWindowWidth(); poX += farStars.width)
+        {
+            SDL_Rect dstRect = {poX, poY, farStars.width, farStars.height};
+            SDL_RenderCopy(getRenderer(), farStars.texture, NULL, &dstRect);
+        }
+    }
+
+    for (int poY = static_cast<int>(nearStars.yOffset); poY < getWindowHeight(); poY += nearStars.height)
+    {
+        for (int poX = 0; poX < getWindowWidth(); poX += nearStars.width)
+        {
+            SDL_Rect dstRect = {poX, poY, nearStars.width, nearStars.height};
+            SDL_RenderCopy(getRenderer(), nearStars.texture, NULL, &dstRect);
+        }
+    }
+}
+
+void Game::backgroudUpdate(float deltaT)
+{
+    farStars.yOffset += farStars.speed * deltaT;
+    if (farStars.position.y >= 0)
+    {
+        farStars.yOffset -= farStars.height;
+    }
+
+    nearStars.yOffset += nearStars.speed *  deltaT;
+    if (nearStars.position.y >= 0)
+    {
+        nearStars.yOffset -= nearStars.height;
+    }
 }

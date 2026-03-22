@@ -1,5 +1,5 @@
 #ifndef OBJECT_H
-#define OGJECT_H
+#define OBJECT_H
 
 #include <SDL.h>
 
@@ -89,6 +89,16 @@ struct Item
     int speed = 150;
     ItemType type = ItemType::Life;
     int bounceCount = 3;
+};
+
+struct Background
+{
+    SDL_Texture* texture;
+    SDL_FPoint position = {0, 0};
+    int width = 0;
+    int height = 0;
+    int speed = 30;
+    float yOffset = 0;// y轴的偏移量
 };
 
 #endif
