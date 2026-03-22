@@ -22,7 +22,7 @@ struct Player
     int speed = 300;
 
     // [BUG] 放在玩家的结构体中-
-    Uint32 coolDown =  500;// 发射子弹的冷却时间，毫秒
+    Uint32 coolDown =  400;// 发射子弹的冷却时间，毫秒
     Uint32 lastShootTime = 0;// 记录上一次的子弹发射时间
 
     int maxHealth = 3;
@@ -46,7 +46,7 @@ struct Enemy
     SDL_FPoint position = {0, 0};
     int width = 0;
     int height = 0;
-    int speed = 100;
+    int speed = 150;
 
     Uint32 coolDown = 2000;
     Uint32 lastShootTime = 0;
@@ -62,7 +62,7 @@ struct ProjectileEnemy
     SDL_FPoint direction = {0, 0};
     int width = 0;
     int height = 0;
-    int speed = 150;
+    int speed = 180;
 
     int demage = 1;
 };

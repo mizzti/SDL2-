@@ -45,8 +45,8 @@ void SceneMain::init()
     // 初始化玩家子弹
     projectilePlayerTemplate.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/laser-3.png");
     SDL_QueryTexture(projectilePlayerTemplate.texture, NULL, NULL, &projectilePlayerTemplate.width, &projectilePlayerTemplate.height);
-    projectilePlayerTemplate.width /= 2;
-    projectilePlayerTemplate.height /= 2;
+    projectilePlayerTemplate.width /= 4;
+    projectilePlayerTemplate.height /= 4;
 
     // 初始化敌机
     enemyTemplate.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/insect-2.png");
@@ -57,8 +57,8 @@ void SceneMain::init()
     // 初始化敌机子弹
     projectileEnemyTemp.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/bullet-2.png");
     SDL_QueryTexture(projectileEnemyTemp.texture, NULL, NULL, &projectileEnemyTemp.width, &projectileEnemyTemp.height);
-    projectileEnemyTemp.width /= 2;
-    projectileEnemyTemp.height /= 2;
+    projectileEnemyTemp.width /= 4;
+    projectileEnemyTemp.height /= 4;
 
     // 初始化爆炸
     explosionTemp.texture = IMG_LoadTexture(game.getRenderer(), "assets/effect/explosion.png");
