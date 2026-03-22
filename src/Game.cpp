@@ -131,11 +131,6 @@ void Game::changeScene(Scene* nextScene)
 
 void Game::clean()
 {
-    if (currentScene != nullptr)
-    {
-        currentScene->clean();
-        delete currentScene;
-    }
     if (nearStars.texture != nullptr)
     {
         SDL_DestroyTexture(nearStars.texture);
