@@ -34,6 +34,7 @@ public:
     void updateExplosions(float deltaTime);
     void updateItem(float deltaTime);
     
+    void renderUi();
     void renderPlayer();
     void renderEnemies();
     void renderProjectilePlayer();
@@ -55,6 +56,7 @@ private:
     Mix_Music* bgm;// 使用的地方创建而非Game类
     Player player;
     bool isAlive = true;
+    SDL_Texture* uiHealth;// 创建ui图标
 
     ProjectilePlayer projectilePlayerTemplate;
     Enemy enemyTemplate;

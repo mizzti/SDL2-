@@ -31,6 +31,8 @@ void SceneMain::init()
     sounds["hit"] = Mix_LoadWAV("assets/sound/eff11.wav");
     sounds["getItem"] = Mix_LoadWAV("assets/sound/eff5.wav");
 
+    uiHealth = IMG_LoadTexture(game.getRenderer(), "assets/image/Health UI Black.png");
+
     // 初始化player [BUG] -
     player.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/SpaceShip.png");
     // 获取材质的长宽作为player的长宽，注意float到int* [BUG] 设置的是玩家的宽高，不是位置-
@@ -96,6 +98,7 @@ void SceneMain::update(float deltaTime)
 
 void SceneMain::render()
 {
+    renderUi();
     // 先渲染子弹，渲染会按照顺序叠加渲染（类似图层）
     renderProjectilePlayer();
     renderPlayer();
@@ -191,6 +194,11 @@ void SceneMain::clean()
     {
         SDL_DestroyTexture(itemLifeTemp.texture);
         itemLifeTemp.texture = nullptr;
+    }
+    if (uiHealth != nullptr)
+    {
+        SDL_DestroyTexture(uiHealth);
+        uiHealth = nullptr;
     }
 
     // 清理音乐
@@ -553,6 +561,27 @@ void SceneMain::renderProjectilePlayer()
             projectile->height
         };
         SDL_RenderCopy(game.getRenderer(), projectile->texture, NULL, &projectileRect);
+    }
+}
+
+void SceneMain::renderUi()
+{
+    // 设置ui的大小位置
+    int x = 10;
+    int y = 10;
+    int size = 32; // 32 x 32像素的正方形，是边长
+    int offset = 5;
+    SDL_SetTextureColorMod(uiHealth, 100, 100, 100);
+    for (int i = 0; i < player.maxHealth; ++i)
+    {
+        SDL_Rect dst = {x + i * (size + offset), y, size, size};
+        SDL_RenderCopy(game.getRenderer(), uiHealth, NULL, &dst);
+    }
+    SDL_SetTextureColorMod(uiHealth, 255, 255, 255);
+    for (int i = 0; i < player.curHealth; ++i)
+    {
+        SDL_Rect dst = {x + i * (size + offset), y, size, size};
+        SDL_RenderCopy(game.getRenderer(), uiHealth, NULL, &dst);
     }
 }
 
