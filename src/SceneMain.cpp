@@ -222,75 +222,6 @@ void SceneMain::clean()
     }
 }
 
-void SceneMain::keyboardControl(float deltaTime)
-{
-    if (!isAlive)
-    {
-        return;
-    }
-    auto keyboardState = SDL_GetKeyboardState(NULL);
-    // 读取键盘状态，设置速度
-    if (keyboardState[SDL_SCANCODE_W])
-    {
-        // 设置速度
-        player.position.y -= deltaTime * player.speed;
-    }
-    if (keyboardState[SDL_SCANCODE_S])
-    {
-        player.position.y += deltaTime * player.speed;
-    }
-    if (keyboardState[SDL_SCANCODE_A])
-    {
-        player.position.x -= deltaTime * player.speed;
-    }
-    if (keyboardState[SDL_SCANCODE_D])
-    {
-        player.position.x += deltaTime * player.speed;
-    }
-
-    // 设置飞机的移动范围
-    if (player.position.x < 0)
-    {
-        player.position.x = 0;
-    }
-    if (player.position.x > game.getWindowWidth() - player.width)
-    {
-        player.position.x = game.getWindowWidth() - player.width;
-    }
-    if (player.position.y < 0)
-    {
-        player.position.y = 0;
-    }
-    if (player.position.y > game.getWindowHeight() - player.height)
-    {
-        player.position.y = game.getWindowHeight() - player.height;
-    }
-
-    // 发射子弹
-    if (keyboardState[SDL_SCANCODE_SPACE])
-    {
-        // 控制子弹发射间隔
-        auto currentTime = SDL_GetTicks();
-        if ((currentTime - player.lastShootTime) > player.coolDown)
-        {
-            shootPlayer();
-            player.lastShootTime = currentTime;
-        }
-    }
-}
-
-void SceneMain::shootPlayer()
-{
-    // 设置发射子弹 [LEARN] 发射子弹时需要加载子弹材质，频繁访问硬盘会减慢游戏速度- 
-    // 使用指针是因为栈上变量的生命周期不匹配，栈上变量离开函数作用域就会被立刻销毁
-    ProjectilePlayer* projectile = new ProjectilePlayer(projectilePlayerTemplate);// 拷贝构造
-    // 设置子弹位置 [BUG] 子弹位置要在发射子弹时再设置-
-    projectile->position.x = player.position.x + player.width / 2 - projectile->width / 2;
-    projectile->position.y = player.position.y;
-    projectilePlayer.push_back(projectile);
-    Mix_PlayChannel(0, sounds["playerShoot"], 0);
-}
-
 void SceneMain::updatePlayer(float)
 {
     if (!isAlive)
@@ -545,21 +476,6 @@ void SceneMain::updateItem(float deltaTime)
     }
 }
 
-void SceneMain::spawnEnemy(float)
-{
-    // 随机生成刷新敌机时间
-    if (random.getFloat() > 1 / 60.0f)
-    {
-        return;// 不刷新敌机
-    }
-    Enemy* enemy = new Enemy(enemyTemplate);
-    // 生成敌机
-    enemy->position.x = random.getFloat() * (game.getWindowWidth() - enemy->width); // [BUG] 限制敌机生成的x坐标-
-    enemy->position.y = - enemy->height;
-    // 插入容器--list，会生成多个敌机
-    enemies.push_back(enemy);
-}
-
 
 void SceneMain::renderProjectilePlayer()
 {
@@ -685,6 +601,77 @@ void SceneMain::renderItem()
     }
 }
 
+
+void SceneMain::keyboardControl(float deltaTime)
+{
+    if (!isAlive)
+    {
+        return;
+    }
+    auto keyboardState = SDL_GetKeyboardState(NULL);
+    // 读取键盘状态，设置速度
+    if (keyboardState[SDL_SCANCODE_W])
+    {
+        // 设置速度
+        player.position.y -= deltaTime * player.speed;
+    }
+    if (keyboardState[SDL_SCANCODE_S])
+    {
+        player.position.y += deltaTime * player.speed;
+    }
+    if (keyboardState[SDL_SCANCODE_A])
+    {
+        player.position.x -= deltaTime * player.speed;
+    }
+    if (keyboardState[SDL_SCANCODE_D])
+    {
+        player.position.x += deltaTime * player.speed;
+    }
+
+    // 设置飞机的移动范围
+    if (player.position.x < 0)
+    {
+        player.position.x = 0;
+    }
+    if (player.position.x > game.getWindowWidth() - player.width)
+    {
+        player.position.x = game.getWindowWidth() - player.width;
+    }
+    if (player.position.y < 0)
+    {
+        player.position.y = 0;
+    }
+    if (player.position.y > game.getWindowHeight() - player.height)
+    {
+        player.position.y = game.getWindowHeight() - player.height;
+    }
+
+    // 发射子弹
+    if (keyboardState[SDL_SCANCODE_SPACE])
+    {
+        // 控制子弹发射间隔
+        auto currentTime = SDL_GetTicks();
+        if ((currentTime - player.lastShootTime) > player.coolDown)
+        {
+            shootPlayer();
+            player.lastShootTime = currentTime;
+        }
+    }
+}
+
+void SceneMain::shootPlayer()
+{
+    // 设置发射子弹 [LEARN] 发射子弹时需要加载子弹材质，频繁访问硬盘会减慢游戏速度- 
+    // 使用指针是因为栈上变量的生命周期不匹配，栈上变量离开函数作用域就会被立刻销毁
+    ProjectilePlayer* projectile = new ProjectilePlayer(projectilePlayerTemplate);// 拷贝构造
+    // 设置子弹位置 [BUG] 子弹位置要在发射子弹时再设置-
+    projectile->position.x = player.position.x + player.width / 2 - projectile->width / 2;
+    projectile->position.y = player.position.y;
+    projectilePlayer.push_back(projectile);
+    Mix_PlayChannel(0, sounds["playerShoot"], 0);
+}
+
+
 void SceneMain::shootProjectilesEnemy(Enemy* enemy)
 {
     ProjectileEnemy* projsEnemy = new ProjectileEnemy(projectileEnemyTemp);
@@ -695,6 +682,21 @@ void SceneMain::shootProjectilesEnemy(Enemy* enemy)
     projsEnemy->direction = getDirection(enemy);
     projectileEnemy.push_back(projsEnemy);
     Mix_PlayChannel(-1, sounds["enemyShoot"], 0);
+}
+
+void SceneMain::spawnEnemy(float)
+{
+    // 随机生成刷新敌机时间
+    if (random.getFloat() > 1 / 60.0f)
+    {
+        return;// 不刷新敌机
+    }
+    Enemy* enemy = new Enemy(enemyTemplate);
+    // 生成敌机
+    enemy->position.x = random.getFloat() * (game.getWindowWidth() - enemy->width); // [BUG] 限制敌机生成的x坐标-
+    enemy->position.y = - enemy->height;
+    // 插入容器--list，会生成多个敌机
+    enemies.push_back(enemy);
 }
 
 SDL_FPoint SceneMain::getDirection(Enemy* enemy)

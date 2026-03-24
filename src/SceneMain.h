@@ -25,32 +25,7 @@ public:
     void render() override;
     void clean() override;
 
-    void keyboardControl(float deltaTime);
-    void shootPlayer();
     
-    void updatePlayer(float deltaTime);
-    void updatePlayerProjectile(float deltaTime);
-    void updateEnemies(float deltaTime);
-    void updateEnemyProjectiles(float deltaTime);
-    void updateExplosions(float deltaTime);
-    void updateItem(float deltaTime);
-    
-    void renderUi();
-    void renderPlayer();
-    void renderEnemies();
-    void renderProjectilePlayer();
-    void renderProjectilesEnemy();
-    void renderExplosions();
-    void renderItem();
-    
-    void spawnEnemy(float deltaTime);
-    void shootProjectilesEnemy(Enemy* enemy);
-    SDL_FPoint getDirection(Enemy* enemy);
-    void enemyExplode(Enemy* enemy);
-    void playerExplode();
-    void dropItem(Enemy* enemy);
-    void playerGetItem(Item* item);
-
 private:
     Game& game;
     Random& random;
@@ -59,7 +34,7 @@ private:
     bool isAlive = true;
     SDL_Texture* uiHealth;// 创建ui图标
     TTF_Font* scoreFont;
-
+    
     ProjectilePlayer projectilePlayerTemplate;
     Enemy enemyTemplate;
     ProjectileEnemy projectileEnemyTemp;
@@ -75,6 +50,34 @@ private:
     std::list<Explosion*> explosions;
     std::list<Item*> items;
     std::map<std::string, Mix_Chunk*> sounds;
+
+    // 更新相关
+    void updatePlayer(float deltaTime);
+    void updatePlayerProjectile(float deltaTime);
+    void updateEnemies(float deltaTime);
+    void updateEnemyProjectiles(float deltaTime);
+    void updateExplosions(float deltaTime);
+    void updateItem(float deltaTime);
+    
+    // 渲染相关
+    void renderUi();
+    void renderPlayer();
+    void renderEnemies();
+    void renderProjectilePlayer();
+    void renderProjectilesEnemy();
+    void renderExplosions();
+    void renderItem();
+    
+    // 其他
+    void keyboardControl(float deltaTime);
+    void shootPlayer();
+    void shootProjectilesEnemy(Enemy* enemy);
+    void spawnEnemy(float deltaTime);
+    SDL_FPoint getDirection(Enemy* enemy);
+    void enemyExplode(Enemy* enemy);
+    void playerExplode();
+    void dropItem(Enemy* enemy);
+    void playerGetItem(Item* item);
 };
 
 #endif
