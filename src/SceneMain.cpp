@@ -4,6 +4,7 @@
 #include <SDL_image.h>
 #include <SDL.h>
 #include <random>
+#include <string>
 
 SceneMain::SceneMain() : game(Game::getInstance()), random(Random::getInstance())
 {
@@ -32,6 +33,7 @@ void SceneMain::init()
     sounds["getItem"] = Mix_LoadWAV("assets/sound/eff5.wav");
 
     uiHealth = IMG_LoadTexture(game.getRenderer(), "assets/image/Health UI Black.png");
+    scoreFont = TTF_OpenFont("assets/font/VonwaonBitmap-12px.ttf", 24);
 
     // 初始化player [BUG] -
     player.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/SpaceShip.png");
@@ -98,8 +100,7 @@ void SceneMain::update(float deltaTime)
 
 void SceneMain::render()
 {
-    renderUi();
-    // 先渲染子弹，渲染会按照顺序叠加渲染（类似图层）
+    // 先渲染子弹，渲染会按照顺序叠加渲染（类似图层：后渲染会在最上方显示）
     renderProjectilePlayer();
     renderPlayer();
     // 渲染敌机子弹
@@ -108,6 +109,7 @@ void SceneMain::render()
     renderEnemies();
     renderItem();
     renderExplosions();
+    renderUi();
 }
 
 void SceneMain::clean()
@@ -195,10 +197,19 @@ void SceneMain::clean()
         SDL_DestroyTexture(itemLifeTemp.texture);
         itemLifeTemp.texture = nullptr;
     }
+
+    // 清理ui血量材质
     if (uiHealth != nullptr)
     {
         SDL_DestroyTexture(uiHealth);
         uiHealth = nullptr;
+    }
+
+    // 清理字体
+    if (scoreFont != nullptr)
+    {
+        // 关闭字体
+        TTF_CloseFont(scoreFont);
     }
 
     // 清理音乐
@@ -566,7 +577,7 @@ void SceneMain::renderProjectilePlayer()
 
 void SceneMain::renderUi()
 {
-    // 设置ui的大小位置
+    // 设置血量ui的大小位置
     int x = 10;
     int y = 10;
     int size = 32; // 32 x 32像素的正方形，是边长
@@ -583,6 +594,17 @@ void SceneMain::renderUi()
         SDL_Rect dst = {x + i * (size + offset), y, size, size};
         SDL_RenderCopy(game.getRenderer(), uiHealth, NULL, &dst);
     }
+
+    // 设置积分显示，to_string在string库中
+    std::string text = "得分:" + std::to_string(player.score);
+    SDL_Color color = {255, 255, 255, 255};
+    SDL_Surface* surface = TTF_RenderUTF8_Solid(scoreFont, text.c_str(), color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(game.getRenderer(), surface);
+    SDL_Rect dst = { game.getWindowWidth() - surface->w - 10, 10, surface->w, surface->h};
+    SDL_RenderCopy(game.getRenderer(), texture, NULL, &dst);
+    // 字体每帧都要进行删除
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
 }
 
 void SceneMain::renderPlayer()
@@ -707,6 +729,7 @@ void SceneMain::enemyExplode(Enemy* enemy)
     {
         dropItem(enemy);
     }
+    player.score += 10;
     delete enemy;
 }
 
@@ -735,6 +758,7 @@ void SceneMain::dropItem(Enemy* enemy)
 
 void SceneMain::playerGetItem(Item* item)
 {
+    player.score += 5;
     Mix_PlayChannel(-1, sounds["hit"], 0);
     if (item->type == ItemType::Life && player.curHealth < player.maxHealth)
     {

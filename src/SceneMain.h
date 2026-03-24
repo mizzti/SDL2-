@@ -8,6 +8,7 @@
 #include <random>
 #include <SDL_Mixer.h>
 #include <map>
+#include <SDL_Ttf.h>
 
 class Game; // 不直接inclue是为防止循环引入头文件
 
@@ -57,6 +58,7 @@ private:
     Player player;
     bool isAlive = true;
     SDL_Texture* uiHealth;// 创建ui图标
+    TTF_Font* scoreFont;
 
     ProjectilePlayer projectilePlayerTemplate;
     Enemy enemyTemplate;

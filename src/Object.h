@@ -27,6 +27,8 @@ struct Player
 
     int maxHealth = 3;
     int curHealth = maxHealth;
+
+    int score = 0;
 };
 
 struct ProjectilePlayer

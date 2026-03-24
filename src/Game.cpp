@@ -84,13 +84,19 @@ void Game::init()
         isRunning = false;
     }
 
+    if (TTF_Init() < 0)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_TTF INIT ERROR: %S\n", TTF_GetError());/// 使用SDL_GetError是一样的
+        isRunning = false;
+    }
+
     if (Mix_Init(MIX_INIT_MP3 | MIX_INIT_OGG) != (MIX_INIT_MP3 | MIX_INIT_OGG))
     {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_MIX INIT ERROR: %S\n", Mix_GetError());
         isRunning = false;
     }
 
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)\
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
     {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_MIX OPEN AUDIO ERROR: %S\n", Mix_GetError());
         isRunning = false;
@@ -142,6 +148,9 @@ void Game::clean()
         farStars.texture = nullptr;
     }
 
+    // 退出字体
+    TTF_Quit();
+    // 退出音频
     Mix_CloseAudio();
     Mix_Quit();
     // 退出图片
