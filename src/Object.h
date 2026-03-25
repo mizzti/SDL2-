@@ -48,7 +48,7 @@ struct Enemy
     SDL_FPoint position = {0, 0};
     int width = 0;
     int height = 0;
-    int speed = 150;
+    int speed = 100;
 
     Uint32 coolDown = 2000;
     Uint32 lastShootTime = 0;
@@ -64,7 +64,7 @@ struct ProjectileEnemy
     SDL_FPoint direction = {0, 0};
     int width = 0;
     int height = 0;
-    int speed = 180;
+    int speed = 200;
 
     int demage = 1;
 };

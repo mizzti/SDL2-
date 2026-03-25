@@ -1,5 +1,6 @@
 #include "SceneTitle.h"
 #include "Game.h"
+#include "SceneMain.h"
 #include <string>
 
 void SceneTitle::init()
@@ -12,22 +13,41 @@ void SceneTitle::init()
     Mix_PlayMusic(bgm, -1);
 }
 
-void SceneTitle::handleEvent(SDL_Event *event)
+void SceneTitle::handleEvent(SDL_Event* event)
 {
+    // 判断键盘是否被按下
+    if (event->type == SDL_KEYDOWN)
+    {
+        // 判断按下的键是否是J
+        if (event->key.keysym.scancode == SDL_SCANCODE_J)
+        {
+            // 切换到主场景
+            game.changeScene(new SceneMain());
+        }
+    }
 }
 
 void SceneTitle::update(float deltaTime)
 {
+    timer += deltaTime;
+    if (timer > 1.0f)
+    {
+        timer -= 1.0f;
+    }
 }
 
 void SceneTitle::render()
 {
     // 渲染标题
     std::string title = "SDL太空大战";
-    game.renderTextCenter(title, 0.3, true);
-    // 渲染普通文字
-    std::string text = "点击J进入游戏";
-    game.renderTextCenter(text, 0.8, false);
+    game.renderTextCenter(title, 0.3f, true);
+
+    if (timer < 0.5f)
+    {
+        // 渲染普通文字
+        std::string text = "点击J进入游戏";
+        game.renderTextCenter(text, 0.8f, false);
+    }
 }
 
 void SceneTitle::clean()

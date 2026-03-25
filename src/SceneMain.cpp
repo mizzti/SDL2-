@@ -1,5 +1,6 @@
 #include "SceneMain.h"
 #include "Game.h"
+#include "SceneTitle.h"
 // 导入IMG库，[BUG] 库名-
 #include <SDL_image.h>
 #include <SDL.h>
@@ -79,8 +80,15 @@ void SceneMain::init()
 
 }
 
-void SceneMain::handleEvent(SDL_Event*)
+void SceneMain::handleEvent(SDL_Event* event)
 {
+    if (event->type == SDL_KEYDOWN)
+    {
+        if (event->key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+        {
+            game.changeScene(new SceneTitle());
+        }
+    }
 }
 
 void SceneMain::update(float deltaTime)
