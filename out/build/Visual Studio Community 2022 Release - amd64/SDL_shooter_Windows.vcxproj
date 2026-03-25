@@ -338,6 +338,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemGroup>
     <ClCompile Include="D:\c++\C++_Game\SDL_shooter\src\main.cpp" />
     <ClCompile Include="D:\c++\C++_Game\SDL_shooter\src\Game.cpp" />
+    <ClCompile Include="D:\c++\C++_Game\SDL_shooter\src\SceneTitle.cpp" />
+    <ClCompile Include="D:\c++\C++_Game\SDL_shooter\src\Scene.cpp" />
     <ClCompile Include="D:\c++\C++_Game\SDL_shooter\src\SceneMain.cpp" />
   </ItemGroup>
   <ItemGroup />

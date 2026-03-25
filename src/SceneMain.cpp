@@ -6,7 +6,7 @@
 #include <random>
 #include <string>
 
-SceneMain::SceneMain() : game(Game::getInstance()), random(Random::getInstance())
+SceneMain::SceneMain() : random(Random::getInstance())
 {
 }
 
@@ -32,6 +32,7 @@ void SceneMain::init()
     sounds["hit"] = Mix_LoadWAV("assets/sound/eff11.wav");
     sounds["getItem"] = Mix_LoadWAV("assets/sound/eff5.wav");
 
+    // 初始化血量ui和积分ui
     uiHealth = IMG_LoadTexture(game.getRenderer(), "assets/image/Health UI Black.png");
     scoreFont = TTF_OpenFont("assets/font/VonwaonBitmap-12px.ttf", 24);
 

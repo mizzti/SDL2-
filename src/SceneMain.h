@@ -27,7 +27,6 @@ public:
 
     
 private:
-    Game& game;
     Random& random;
     Mix_Music* bgm;// 使用的地方创建而非Game类
     Player player;

@@ -1,9 +1,11 @@
 #include "Game.h"
 #include "SceneMain.h"
+#include "SceneTitle.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
+#include <string>
 
 Game::Game()
 {
@@ -53,6 +55,7 @@ void Game::init()
     // 计算frameTime每秒内一帧所用时间 [BUG] 目标时间计算公式- 单位毫秒
     frameTime = 1000 / FPS;
     deltaTime = frameTime / 1000.0f;// 防止第一帧出现的随机值
+
     // SDL初始化
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
     {
@@ -69,6 +72,7 @@ void Game::init()
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_CreateWindow Error: %s\n", SDL_GetError());
         isRunning = false;
     }
+
     // 创建渲染器
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == nullptr)
@@ -84,32 +88,17 @@ void Game::init()
         isRunning = false;
     }
 
-    if (TTF_Init() < 0)
-    {
-        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_TTF INIT ERROR: %S\n", TTF_GetError());/// 使用SDL_GetError是一样的
-        isRunning = false;
-    }
-
+    // 初始化音频
     if (Mix_Init(MIX_INIT_MP3 | MIX_INIT_OGG) != (MIX_INIT_MP3 | MIX_INIT_OGG))
     {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_MIX INIT ERROR: %S\n", Mix_GetError());
         isRunning = false;
     }
-
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
     {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_MIX OPEN AUDIO ERROR: %S\n", Mix_GetError());
         isRunning = false;
     }
-
-    nearStars.texture = IMG_LoadTexture(getRenderer(), "assets/image/Stars-A.png");
-    SDL_QueryTexture(nearStars.texture, NULL, NULL, &nearStars.width, &nearStars.height);
-    nearStars.width /= 2;
-    nearStars.height /= 2;
-    farStars.texture = IMG_LoadTexture(getRenderer(), "assets/image/Stars-B.png");
-    SDL_QueryTexture(farStars.texture, NULL, NULL, &farStars.width, &farStars.height);
-    farStars.width /= 2;
-    farStars.height /= 2;
 
     // 设置channel数量
     Mix_AllocateChannels(32);
@@ -117,7 +106,39 @@ void Game::init()
     Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
     Mix_Volume(-1, MIX_MAX_VOLUME / 4);
 
-    currentScene = new SceneMain();
+    // 初始化字体
+    if (TTF_Init() < 0)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "SDL_TTF INIT ERROR: %S\n", TTF_GetError());/// 使用SDL_GetError是一样的
+        isRunning = false;
+    }
+
+    // 初始化卷轴背景
+    nearStars.texture = IMG_LoadTexture(getRenderer(), "assets/image/Stars-A.png");
+    SDL_QueryTexture(nearStars.texture, NULL, NULL, &nearStars.width, &nearStars.height);
+    nearStars.width /= 2;
+    nearStars.height /= 2;
+
+    farStars.texture = IMG_LoadTexture(getRenderer(), "assets/image/Stars-B.png");
+    SDL_QueryTexture(farStars.texture, NULL, NULL, &farStars.width, &farStars.height);
+    farStars.width /= 2;
+    farStars.height /= 2;
+    if (nearStars.texture == nullptr || farStars.texture == nullptr)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load background textures: %s\n", IMG_GetError());
+        isRunning = false;
+    }
+
+    // 载入字体
+    titleFont = TTF_OpenFont("assets/font/VonwaonBitmap-16px.ttf", 64);
+    textFont = TTF_OpenFont("assets/font/VonwaonBitmap-12px.ttf", 32);
+    if (titleFont == nullptr || textFont == nullptr)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load font: %s\n", TTF_GetError());
+        isRunning = false;
+    }
+
+    currentScene = new SceneTitle();
     currentScene->init();
 }
 
@@ -147,7 +168,20 @@ void Game::clean()
         SDL_DestroyTexture(farStars.texture);
         farStars.texture = nullptr;
     }
+    
+    if (titleFont != nullptr)
+    {
+        TTF_CloseFont(titleFont);
+        titleFont = nullptr;
+    }
+    if (textFont != nullptr)
+    {
+        TTF_CloseFont(textFont);
+        textFont = nullptr;
+    }
 
+    TTF_CloseFont(titleFont);
+    TTF_CloseFont(textFont);
     // 退出字体
     TTF_Quit();
     // 退出音频
@@ -192,6 +226,30 @@ void Game::render()
     currentScene->render();
     // 更新显示
     SDL_RenderPresent(renderer);
+}
+
+void Game::renderTextCenter(std::string text, float posY, bool isTitleFont)
+{
+    SDL_Color color = {255, 255, 255, 255};
+    SDL_Surface* surface;
+    if (isTitleFont)
+    {
+        surface = TTF_RenderUTF8_Solid(titleFont, text.c_str(), color);
+    }
+    else
+    {
+        surface = TTF_RenderUTF8_Solid(textFont, text.c_str(), color);
+    }
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(getRenderer(), surface);
+    SDL_Rect rect = {
+        getWindowWidth()/2 - surface->w/2, 
+        static_cast<int>((getWindowHeight() - surface->h) * posY), 
+        surface->w, 
+        surface->h
+    };
+    SDL_RenderCopy(getRenderer(), texture, NULL, &rect);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
 }
 
 void Game::renderBackground()

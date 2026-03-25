@@ -30,6 +30,8 @@ find_package(SDL2_ttf REQUIRED)
 add_executable(${TARGET}
                 "src/main.cpp"
                 "src/Game.cpp"
+                "src/SceneTitle.cpp"
+                "src/Scene.cpp"
                 "src/SceneMain.cpp") #可执行文件即.cpp文件，需要按照其所在目录添加
 
 #链接库

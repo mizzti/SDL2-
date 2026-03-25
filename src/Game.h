@@ -5,6 +5,8 @@
 #include "Scene.h"
 #include "Object.h"
 #include <SDL.h>
+#include <SDL_ttf.h>
+#include <string>
 
 class Game
 {
@@ -20,12 +22,12 @@ public:
     void run();
     void changeScene(Scene* nextScene);
     void clean();
-
     void handleEvent(SDL_Event* e);
     void update(float deltaT);
     void render();
-    void renderBackground();
-    void backgroudUpdate(float deltaT);
+
+    // 渲染工具函数
+    void renderTextCenter(std::string text, float posY, bool isTitleFont);
     
     SDL_Renderer* getRenderer()
     {
@@ -54,6 +56,9 @@ private:
     Background farStars;
     Background nearStars;
 
+    TTF_Font* titleFont;
+    TTF_Font* textFont;
+
     bool isRunning = true;
     Scene* currentScene = nullptr;
     SDL_Window* window = nullptr;
@@ -64,6 +69,9 @@ private:
     int FPS = 60;
     Uint32 frameTime;
     float deltaTime;// 渲染循环所需时间
+
+    void renderBackground();
+    void backgroudUpdate(float deltaT);
 };
 
 #endif
