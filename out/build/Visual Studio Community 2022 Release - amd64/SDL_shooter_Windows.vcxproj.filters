@@ -13,6 +13,9 @@
     <ClCompile Include="D:\c++\C++_Game\SDL_shooter\src\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\c++\C++_Game\SDL_shooter\src\SceneEnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="D:\c++\C++_Game\SDL_shooter\src\SceneMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

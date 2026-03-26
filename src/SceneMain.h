@@ -33,6 +33,7 @@ private:
     bool isAlive = true;
     SDL_Texture* uiHealth;// 创建ui图标
     TTF_Font* scoreFont;
+    float timerEnd = 0.0f;// 延迟切换结束场景
     
     ProjectilePlayer projectilePlayerTemplate;
     Enemy enemyTemplate;
@@ -57,6 +58,9 @@ private:
     void updateEnemyProjectiles(float deltaTime);
     void updateExplosions(float deltaTime);
     void updateItem(float deltaTime);
+    void keyboardControl(float deltaTime);
+    void spawnEnemy(float deltaTime);
+    void changeSceneDelay(float deltaTime, float delay);
     
     // 渲染相关
     void renderUi();
@@ -68,10 +72,8 @@ private:
     void renderItem();
     
     // 其他
-    void keyboardControl(float deltaTime);
     void shootPlayer();
     void shootProjectilesEnemy(Enemy* enemy);
-    void spawnEnemy(float deltaTime);
     SDL_FPoint getDirection(Enemy* enemy);
     void enemyExplode(Enemy* enemy);
     void playerExplode();
