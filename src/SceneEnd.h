@@ -20,6 +20,7 @@ private:
 
     void renderPhase1();
     void renderPhase2();
+    void deleteCh(std::string& str);// 需要对原字符串进行修改
 };
 
 #endif

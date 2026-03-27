@@ -32,7 +32,8 @@ void SceneEnd::handleEvent(SDL_Event *event)
             }
             if (event->key.keysym.scancode == SDL_SCANCODE_BACKSPACE)
             {
-                name.pop_back();
+                // 判断不同字符进行不同的删除操作
+                deleteCh(name);
             }
         }
     }
@@ -82,4 +83,22 @@ void SceneEnd::renderPhase1()
 
 void SceneEnd::renderPhase2()
 {
+}
+
+void SceneEnd::deleteCh(std::string& str)
+{
+    if (str.empty()) return;
+    char lastCh = str.back();// 只赋值了一次，对空字符串pop在MSVC中会触发断言
+    if ((lastCh & 0b10000000) == 0b10000000)
+    {
+        // 中文后续
+        str.pop_back();
+        while ((lastCh & 0b11000000) != 0b11000000)// 中文头部
+        {
+            str.pop_back();
+            if (str.empty()) return;
+            lastCh = str.back();// 继续获取字符串的最后一个字符
+        }
+    }
+    str.pop_back();
 }
