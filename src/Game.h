@@ -28,26 +28,20 @@ public:
 
     // 渲染工具函数
     void renderTextCenter(std::string text, float posY, bool isTitleFont);
-    
-    SDL_Renderer* getRenderer()
-    {
-        return renderer;
-    }
 
-    SDL_Window* getWindow()
-    {
-        return window;
-    }
+    // set函数
+    void setFinalScore(int score){ finalScore = score; }
 
-    int getWindowWidth()
-    {
-        return windowWidth;
-    }
+    // get函数
+    int getFinalScore() { return finalScore; }
 
-    int getWindowHeight()
-    {
-        return windowHeight;
-    }
+    SDL_Renderer* getRenderer(){ return renderer; }
+
+    SDL_Window* getWindow(){ return window; }
+
+    int getWindowWidth(){ return windowWidth; }
+
+    int getWindowHeight(){ return windowHeight; }
 
 private:
     Game();
@@ -55,6 +49,7 @@ private:
     Game& operator=(const Game&) = delete; // [BUG] 删除拷贝运算符的参数-
     Background farStars;
     Background nearStars;
+    int finalScore = 0;
 
     TTF_Font* titleFont;
     TTF_Font* textFont;

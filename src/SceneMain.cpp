@@ -247,6 +247,8 @@ void SceneMain::updatePlayer(float)
     if (player.curHealth <= 0)
     {
         playerExplode();
+        game.setFinalScore(player.score);
+        return;
     }
 }
 

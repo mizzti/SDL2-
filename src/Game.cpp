@@ -222,7 +222,7 @@ void Game::render()
     SDL_RenderClear(renderer);
     // 渲染星空背景
     renderBackground();
-    // 渲染主场景
+    // 渲染当前场景
     currentScene->render();
     // 更新显示
     SDL_RenderPresent(renderer);

@@ -3,6 +3,7 @@
 
 #include "Scene.h"
 #include <SDL.h>
+#include <string>
 
 class SceneEnd : public Scene
 {
@@ -12,6 +13,13 @@ public:
     void update(float deltaTime);
     void render();
     void clean();
+
+private:
+    bool isTypeing = true;
+    std::string name;
+
+    void renderPhase1();
+    void renderPhase2();
 };
 
 #endif
