@@ -64,6 +64,9 @@ void Game::init()
         isRunning = false;
     }
 
+    // 强制显示系统输入法候选框（Windows/Linux/macOS通用）
+    SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");// 需要在创建窗口前设置
+
     // 创建窗口
     window = SDL_CreateWindow("SDL2 Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
     // 创建失败要打印，并设置isRunning为false，因为方便寻找错误位置
