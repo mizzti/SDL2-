@@ -434,9 +434,16 @@ void SceneMain::updateExplosions(float)
 
 void SceneMain::updateItem(float deltaTime)
 {
+    Uint32 curTime = SDL_GetTicks();
     for (auto it = items.begin(); it != items.end();)
     {
         Item* item = *it;
+        Uint32 diff = curTime - item->spawnTime;
+        if (diff < item->spawnDelay)
+        {
+            ++it;
+            continue;
+        }
         // [BUG]应累加位置+=
         item->position.x += item->direction.x * item->speed * deltaTime;
         item->position.y += item->direction.y * item->speed * deltaTime;
@@ -688,8 +695,14 @@ void SceneMain::renderExplosions()
 
 void SceneMain::renderItem()
 {
+    Uint32 curTime = SDL_GetTicks();
     for (Item* item : items)
     {
+        Uint32 diff = curTime - item->spawnTime;
+        if (diff < item->spawnDelay)
+        {
+            continue;
+        }
         SDL_Rect itemRect = {
             static_cast<int>(item->position.x),
             static_cast<int>(item->position.y), 
@@ -783,6 +796,8 @@ void SceneMain::dropItem(Enemy* enemy)
     float dir = random.getFloat() * 2 * M_PI;
     itemLife->direction.x = std::cos(dir);
     itemLife->direction.y = std::sin(dir);
+    // 记录掉落时间
+    itemLife->spawnTime = SDL_GetTicks();
     items.push_back(itemLife);
 }
 

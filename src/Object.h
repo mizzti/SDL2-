@@ -91,6 +91,9 @@ struct Item
     int speed = 150;
     ItemType type = ItemType::Life;
     int bounceCount = 3;
+
+    float spawnDelay = 0.3f;
+    Uint32 spawnTime = 0;
 };
 
 struct Background
