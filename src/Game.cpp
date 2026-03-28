@@ -182,9 +182,6 @@ void Game::clean()
         TTF_CloseFont(textFont);
         textFont = nullptr;
     }
-
-    TTF_CloseFont(titleFont);
-    TTF_CloseFont(textFont);
     // 退出字体
     TTF_Quit();
     // 退出音频
@@ -231,7 +228,7 @@ void Game::render()
     SDL_RenderPresent(renderer);
 }
 
-void Game::renderTextCenter(std::string text, float posY, bool isTitleFont)
+SDL_Point Game::renderTextCenter(std::string text, float posY, bool isTitleFont)
 {
     SDL_Color color = {255, 255, 255, 255};
     SDL_Surface* surface;
@@ -244,12 +241,25 @@ void Game::renderTextCenter(std::string text, float posY, bool isTitleFont)
         surface = TTF_RenderUTF8_Solid(textFont, text.c_str(), color);
     }
     SDL_Texture* texture = SDL_CreateTextureFromSurface(getRenderer(), surface);
+    int y = static_cast<int>((getWindowHeight() - surface->h) * posY);
     SDL_Rect rect = {
         getWindowWidth()/2 - surface->w/2, 
-        static_cast<int>((getWindowHeight() - surface->h) * posY), 
+        y, 
         surface->w, 
         surface->h
     };
+    SDL_RenderCopy(getRenderer(), texture, NULL, &rect);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+    return {rect.x + rect.w, rect.y};
+}
+
+void Game::renderTextPos(std::string text, int posX, int posY)
+{
+    SDL_Color color = {255, 255, 255, 255};
+    SDL_Surface* surface = TTF_RenderUTF8_Solid(textFont, text.c_str(), color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(getRenderer(), surface);
+    SDL_Rect rect = {posX, posY, surface->w, surface->h};
     SDL_RenderCopy(getRenderer(), texture, NULL, &rect);
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);

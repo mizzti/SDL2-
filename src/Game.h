@@ -27,7 +27,8 @@ public:
     void render();
 
     // 渲染工具函数
-    void renderTextCenter(std::string text, float posY, bool isTitleFont);
+    SDL_Point renderTextCenter(std::string text, float posY, bool isTitleFont);
+    void renderTextPos(std::string text, int posX, int posY);
 
     // set函数
     void setFinalScore(int score){ finalScore = score; }

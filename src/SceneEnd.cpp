@@ -43,8 +43,13 @@ void SceneEnd::handleEvent(SDL_Event *event)
     }
 }
 
-void SceneEnd::update(float)
+void SceneEnd::update(float deltaTime)
 {
+    blinkTimer -= deltaTime;
+    if (blinkTimer <= 0)
+    {
+        blinkTimer += 1.0f;
+    }
 }
 
 void SceneEnd::render()
@@ -73,11 +78,22 @@ void SceneEnd::renderPhase1()
     game.renderTextCenter(text2, 0.4f, true);
 
     std::string text3 = "请输入你的名字，按回车键确认：";
-    game.renderTextCenter(text3, 0.6f, false);
+    game.renderTextCenter(text3, 0.7f, false);
 
     if (name != "")
     {
-        game.renderTextCenter(name, 0.7f, false);
+        SDL_Point pos = game.renderTextCenter(name, 0.8f, false);
+        if (blinkTimer < 0.5f)
+        {
+            game.renderTextPos("_", pos.x, pos.y);
+        }
+    }
+    else
+    {
+        if (blinkTimer < 0.5f)
+        {
+            game.renderTextCenter("_", 0.8f, false);
+        }
     }
 }
 

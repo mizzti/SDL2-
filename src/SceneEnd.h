@@ -17,6 +17,7 @@ public:
 private:
     bool isTypeing = true;
     std::string name;
+    float blinkTimer = 1.0f;// 闪烁时间
 
     void renderPhase1();
     void renderPhase2();
