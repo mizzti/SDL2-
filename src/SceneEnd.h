@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include <SDL.h>
 #include <string>
+#include <map>
 
 class SceneEnd : public Scene
 {

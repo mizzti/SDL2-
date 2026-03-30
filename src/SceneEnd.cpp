@@ -1,5 +1,6 @@
 #include "SceneEnd.h"
 #include "Game.h"
+#include "SceneMain.h"
 #include <string>
 #include <SDL.h>
 
@@ -28,7 +29,12 @@ void SceneEnd::handleEvent(SDL_Event *event)
             if (event->key.keysym.scancode == SDL_SCANCODE_RETURN)
             {
                 isTypeing = false;
+                if (name == "")
+                {
+                    name = "无名氏";
+                }
                 SDL_StopTextInput();
+                game.insertLeaderBoard(game.getFinalScore(), name);
             }
             if (event->key.keysym.scancode == SDL_SCANCODE_BACKSPACE)
             {
@@ -39,6 +45,10 @@ void SceneEnd::handleEvent(SDL_Event *event)
     }
     else
     {
+        if ( event->key.keysym.scancode == SDL_SCANCODE_J)
+        {
+            game.changeScene(new SceneMain());// [NOTE]无参构造的默认构造函数，C++允许省略括号:new SceneMain
+        }
 
     }
 }
@@ -99,6 +109,25 @@ void SceneEnd::renderPhase1()
 
 void SceneEnd::renderPhase2()
 {
+    std::string textTitle = "得分榜";
+    game.renderTextCenter(textTitle, 0.1f, true);
+    int num = 1;
+    int posY = 0.2 * game.getWindowHeight();
+    for (auto item : game.getLeaderBoard())
+    {
+        std::string name = std::to_string(num) + ". " + item.second;
+        std::string score = std::to_string(item.first);
+        game.renderTextPos(name, 100, posY);
+        game.renderTextPos(score, 100, posY, false);
+        num++;
+        // 下一个要在y方向上移动posY
+        posY += 50;
+    }
+    std::string text = "按J键重新开始游戏";
+    if (blinkTimer < 0.5f)
+    {
+        game.renderTextCenter(text, 0.8f, false);
+    }
 }
 
 void SceneEnd::deleteCh(std::string& str)

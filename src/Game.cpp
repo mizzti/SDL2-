@@ -254,15 +254,33 @@ SDL_Point Game::renderTextCenter(std::string text, float posY, bool isTitleFont)
     return {rect.x + rect.w, rect.y};
 }
 
-void Game::renderTextPos(std::string text, int posX, int posY)
+void Game::renderTextPos(std::string text, int posX, int posY, bool isLeft)
 {
     SDL_Color color = {255, 255, 255, 255};
     SDL_Surface* surface = TTF_RenderUTF8_Solid(textFont, text.c_str(), color);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(getRenderer(), surface);
-    SDL_Rect rect = {posX, posY, surface->w, surface->h};
+    SDL_Rect rect;
+    if (isLeft)
+    {
+        rect = {posX, posY, surface->w, surface->h};
+    }
+    else
+    {
+        rect = {getWindowWidth() - posX - surface->w, posY, surface->w, surface->h};
+    }
     SDL_RenderCopy(getRenderer(), texture, NULL, &rect);
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
+}
+
+void Game::insertLeaderBoard(int score, std::string string)
+{
+    leaderBoard.insert({score, string});
+    // 得分榜只保留前八
+    if (leaderBoard.size() > 8)
+    {
+        leaderBoard.erase(--leaderBoard.end());
+    }
 }
 
 void Game::renderBackground()
