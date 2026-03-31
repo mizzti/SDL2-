@@ -69,6 +69,8 @@ private:
 
     void renderBackground();
     void backgroudUpdate(float deltaT);
+    void saveData();
+    void loadData();
 };
 
 #endif

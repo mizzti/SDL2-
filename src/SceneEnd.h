@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <string>
 #include <map>
+#include <SDL_mixer.h>
 
 class SceneEnd : public Scene
 {
@@ -19,6 +20,7 @@ private:
     bool isTypeing = true;
     std::string name;
     float blinkTimer = 1.0f;// 闪烁时间
+    Mix_Music* endBgm;
 
     void renderPhase1();
     void renderPhase2();

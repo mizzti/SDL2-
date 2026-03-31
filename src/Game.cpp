@@ -6,6 +6,7 @@
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 #include <string>
+#include <fstream>
 
 Game::Game()
 {
@@ -13,11 +14,7 @@ Game::Game()
 
 Game::~Game()
 {
-    if (currentScene != nullptr)
-    {
-        currentScene->clean();
-        delete currentScene;
-    }
+    saveData();
     clean();
 }
 
@@ -141,6 +138,8 @@ void Game::init()
         isRunning = false;
     }
 
+    loadData();
+
     currentScene = new SceneTitle();
     currentScene->init();
 }
@@ -161,6 +160,12 @@ void Game::changeScene(Scene* nextScene)
 
 void Game::clean()
 {
+    if (currentScene != nullptr)
+    {
+        currentScene->clean();
+        delete currentScene;
+    }
+
     if (nearStars.texture != nullptr)
     {
         SDL_DestroyTexture(nearStars.texture);
@@ -316,5 +321,35 @@ void Game::backgroudUpdate(float deltaT)
     if (nearStars.position.y >= 0)
     {
         nearStars.yOffset -= nearStars.height;
+    }
+}
+
+void Game::saveData()
+{
+    std::ofstream file("assets/save.dat");//  相对路径，绝对路径前需加"/"
+    if (!file.is_open())
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to open save file for writing\n");
+        return;
+    }
+    for (const auto& data : leaderBoard)
+    {
+        file << data.first << data.second << std::endl;
+    }
+}
+
+void Game::loadData()
+{
+    std::ifstream file ("assets/save.dat");
+    if (!file.is_open())
+    {
+        SDL_Log("Failed to open save file for loading\n");
+        return;
+    }
+    int score;
+    std::string name;
+    while (file >> score >> name)
+    {
+        leaderBoard.insert({score, name});
     }
 }

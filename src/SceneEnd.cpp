@@ -3,6 +3,7 @@
 #include "SceneMain.h"
 #include <string>
 #include <SDL.h>
+#include <SDL_mixer.h>
 
 void SceneEnd::init()
 {
@@ -14,6 +15,13 @@ void SceneEnd::init()
     {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to start text input: %s\n", SDL_GetError());
     }
+
+    endBgm = Mix_LoadMUS("assets/music/06_Battle_in_Space_Intro.ogg");
+    if (endBgm == nullptr)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load BGM: %s\n", Mix_GetError());
+    }
+    Mix_PlayMusic(endBgm, -1);
 }
 
 void SceneEnd::handleEvent(SDL_Event *event)
@@ -76,6 +84,11 @@ void SceneEnd::render()
 
 void SceneEnd::clean()
 {
+    if (endBgm != nullptr)
+    {
+        Mix_HaltMusic();
+        Mix_FreeMusic(endBgm);
+    }
 }
 
 void SceneEnd::renderPhase1()
@@ -115,9 +128,9 @@ void SceneEnd::renderPhase2()
     int posY = 0.2 * game.getWindowHeight();
     for (auto item : game.getLeaderBoard())
     {
-        std::string name = std::to_string(num) + ". " + item.second;
+        std::string namePlayer = std::to_string(num) + ". " + item.second;
         std::string score = std::to_string(item.first);
-        game.renderTextPos(name, 100, posY);
+        game.renderTextPos(namePlayer, 100, posY);
         game.renderTextPos(score, 100, posY, false);
         num++;
         // 下一个要在y方向上移动posY
