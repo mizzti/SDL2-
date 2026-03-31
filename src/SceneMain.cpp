@@ -64,8 +64,8 @@ void SceneMain::init()
     // 初始化敌机子弹
     projectileEnemyTemp.texture = IMG_LoadTexture(game.getRenderer(), "assets/image/bullet-2.png");
     SDL_QueryTexture(projectileEnemyTemp.texture, NULL, NULL, &projectileEnemyTemp.width, &projectileEnemyTemp.height);
-    projectileEnemyTemp.width /= 4;
-    projectileEnemyTemp.height /= 4;
+    projectileEnemyTemp.width /= 3;
+    projectileEnemyTemp.height /= 3;
 
     // 初始化爆炸
     explosionTemp.texture = IMG_LoadTexture(game.getRenderer(), "assets/effect/explosion.png");

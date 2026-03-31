@@ -52,6 +52,7 @@ private:
     Background nearStars;
     int finalScore = 0;
     std::multimap <int, std::string, std::greater<int>> leaderBoard;// 得分榜，需要从大到小排序
+    bool isFullScreen = false;
 
     TTF_Font* titleFont;
     TTF_Font* textFont;

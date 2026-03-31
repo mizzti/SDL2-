@@ -81,6 +81,9 @@ void Game::init()
         isRunning = false;
     }
 
+    // 设置逻辑分辨率，在窗口渲染器渲染完成后，保证全屏也不会改变设置好的窗口宽高
+    SDL_RenderSetLogicalSize(renderer, windowWidth, windowHeight);
+
     // 初始化IMG [BUG] 初始化函数名和参数写错，初始化位置应在Game中-
     if (IMG_Init(IMG_INIT_PNG) != (IMG_INIT_PNG))
     {
@@ -114,12 +117,12 @@ void Game::init()
     }
 
     // 初始化卷轴背景
-    nearStars.texture = IMG_LoadTexture(getRenderer(), "assets/image/Stars-A.png");
+    nearStars.texture = IMG_LoadTexture(renderer, "assets/image/Stars-A.png");
     SDL_QueryTexture(nearStars.texture, NULL, NULL, &nearStars.width, &nearStars.height);
     nearStars.width /= 2;
     nearStars.height /= 2;
 
-    farStars.texture = IMG_LoadTexture(getRenderer(), "assets/image/Stars-B.png");
+    farStars.texture = IMG_LoadTexture(renderer, "assets/image/Stars-B.png");
     SDL_QueryTexture(farStars.texture, NULL, NULL, &farStars.width, &farStars.height);
     farStars.width /= 2;
     farStars.height /= 2;
@@ -210,6 +213,21 @@ void Game::handleEvent(SDL_Event* event)
         {
             isRunning = false;
         }
+        if (event->type == SDL_KEYDOWN)
+        {
+            if (event->key.keysym.scancode == SDL_SCANCODE_F4)
+            {
+                isFullScreen = !isFullScreen;// isFullScreen取反设置为想要进入的窗口状态
+                if (isFullScreen)
+                {
+                    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+                }
+                else
+                {
+                    SDL_SetWindowFullscreen(window, 0);
+                }
+            }
+        }
         // 处理事件
         currentScene->handleEvent(event);
     }
@@ -245,7 +263,7 @@ SDL_Point Game::renderTextCenter(std::string text, float posY, bool isTitleFont)
     {
         surface = TTF_RenderUTF8_Solid(textFont, text.c_str(), color);
     }
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(getRenderer(), surface);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     int y = static_cast<int>((getWindowHeight() - surface->h) * posY);
     SDL_Rect rect = {
         getWindowWidth()/2 - surface->w/2, 
@@ -253,7 +271,7 @@ SDL_Point Game::renderTextCenter(std::string text, float posY, bool isTitleFont)
         surface->w, 
         surface->h
     };
-    SDL_RenderCopy(getRenderer(), texture, NULL, &rect);
+    SDL_RenderCopy(renderer, texture, NULL, &rect);
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
     return {rect.x + rect.w, rect.y};
@@ -263,7 +281,7 @@ void Game::renderTextPos(std::string text, int posX, int posY, bool isLeft)
 {
     SDL_Color color = {255, 255, 255, 255};
     SDL_Surface* surface = TTF_RenderUTF8_Solid(textFont, text.c_str(), color);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(getRenderer(), surface);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_Rect rect;
     if (isLeft)
     {
@@ -273,7 +291,7 @@ void Game::renderTextPos(std::string text, int posX, int posY, bool isLeft)
     {
         rect = {getWindowWidth() - posX - surface->w, posY, surface->w, surface->h};
     }
-    SDL_RenderCopy(getRenderer(), texture, NULL, &rect);
+    SDL_RenderCopy(renderer, texture, NULL, &rect);
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
 }
@@ -295,7 +313,7 @@ void Game::renderBackground()
         for (int poX = 0; poX < getWindowWidth(); poX += farStars.width)
         {
             SDL_Rect dstRect = {poX, poY, farStars.width, farStars.height};
-            SDL_RenderCopy(getRenderer(), farStars.texture, NULL, &dstRect);
+            SDL_RenderCopy(renderer, farStars.texture, NULL, &dstRect);
         }
     }
 
@@ -304,7 +322,7 @@ void Game::renderBackground()
         for (int poX = 0; poX < getWindowWidth(); poX += nearStars.width)
         {
             SDL_Rect dstRect = {poX, poY, nearStars.width, nearStars.height};
-            SDL_RenderCopy(getRenderer(), nearStars.texture, NULL, &dstRect);
+            SDL_RenderCopy(renderer, nearStars.texture, NULL, &dstRect);
         }
     }
 }
